@@ -17,8 +17,13 @@ Jeweler::Tasks.new do |gem|
   gem.name = "comana"
   gem.homepage = "http://github.com/ippei94da/comana"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Manager for scientific computing}
+  gem.description = %Q{An aim of this gem is to provide a framework of
+    managing scientific computing.
+    Researchers on computing have to check calculation and
+    generate new calculation and execute, repeatedly.
+    The abstract class that this gem provide would help the work.
+  }
   gem.email = "ippei94da@gmail.com"
   gem.authors = ["ippei94da"]
   # dependencies defined in Gemfile

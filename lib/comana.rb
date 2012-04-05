@@ -67,7 +67,7 @@ class Comana
     # e.g.,
     #@logfile    = "comana.log"
     #@alive_time = 3600
-    #@outfiles   = ["output_a", "ouput_b"] # should be use files only to output.
+    #@outfiles   = ["output_a", "ouput_b"] # Files only to output should be indicated.
   end
 
   # Return latest modified time of files in calc dir recursively.

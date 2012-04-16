@@ -80,7 +80,11 @@ class Comana
   end
 
   def started?
-    File.exist?( "#{@dir}/#{@logfile}" )
+    return true if File.exist?( "#{@dir}/#{@logfile}" )
+    @outfiles.each do |file|
+      return true if File.exist?( "#{@dir}/#{file}" )
+    end
+    return false
   end
 
   # Return true if the condition is satisfied.

@@ -3,8 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 NOW = Time.now
 CALC_DIR = "spec/dummy"
-LOG = "#{CALC_DIR}/log"
-#OUTFILES = ["output_a"]
+LOCKFILE = "#{CALC_DIR}/log"
+OUTFILES = ["#{CALC_DIR}/output_a", "#{CALC_DIR}/output_b"]
 
 class Comana
   public :latest_modified_time, :started?
@@ -13,14 +13,10 @@ end
 class CalcFinished    < Comana
   def normal_ended?     ; true      ; end
   def finished?         ; true      ; end
-  def send_command      ;           ; end
-  def prepare_next      ;           ; end
-  def initial_state     ;           ; end
-  def latest_state      ;           ; end
-  def teardown          ;           ; end
   def set_parameters
     @logfile    = "log"
     @alive_time =  500
+    @outfiles   =  []
   end
 end
 
@@ -28,14 +24,10 @@ describe Comana, "with not calculated" do
   class CalcYet < Comana
     def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
-    def send_command      ;           ; end
-    def prepare_next      ;           ; end
-    def initial_state     ;           ; end
-    def latest_state      ;           ; end
-    def teardown          ;           ; end
     def set_parameters
       @logfile    = "log"
       @alive_time = 3600
+      @outfiles   =  []
     end
   end
   before do
@@ -43,7 +35,7 @@ describe Comana, "with not calculated" do
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 
   it "should return the state" do
@@ -60,12 +52,12 @@ describe Comana, "with not calculated" do
   end
 
   it "should return true with log." do
-    File.open(LOG, "w")
+    File.open(LOCKFILE, "w")
     @calc.started?.should be_true
   end
 
   after do
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 end
 
@@ -73,14 +65,10 @@ describe Comana, "with log" do
   class CalcStarted < Comana
     def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
-    def send_command      ;           ; end
-    def prepare_next      ;           ; end
-    def initial_state     ;           ; end
-    def latest_state      ;           ; end
-    def teardown          ;           ; end
     def set_parameters
       @logfile    = "log"
       @alive_time = 5000
+      @outfiles   =  []
     end
   end
 
@@ -88,7 +76,7 @@ describe Comana, "with log" do
     @calc = CalcStarted   .new(CALC_DIR)
     File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    File.open(LOG, "w")
+    File.open(LOCKFILE, "w")
   end
 
   it "should return :started" do
@@ -96,51 +84,46 @@ describe Comana, "with log" do
   end
 
   after do
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 end
 
-#describe Comana, "with output" do
-#  class CalcStarted < Comana
-#    def normal_ended?     ; false     ; end
-#    def finished?         ; false     ; end
-#    def send_command      ;           ; end
-#    def prepare_next      ;           ; end
-#    def initial_state     ;           ; end
-#    def latest_state      ;           ; end
-#    def teardown          ;           ; end
-#    def set_parameters
-#      @logfile    = "log"
-#      @alive_time = 5000
-#    end
-#  end
-#
-#  before do
-#    @calc = CalcStarted   .new(CALC_DIR)
-#    File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
-#    File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-#    #File.open(OUTPUT, "w")
-#  end
-#
-#  it "should return :started"
-#
-#  after do
-#    FileUtils.rm(LOG) if File.exist?(LOG)
-#  end
-#end
+describe Comana, "with output, without lock" do
+  class CalcStarted < Comana
+    def normal_ended?     ; false     ; end
+    def finished?         ; false     ; end
+    def set_parameters
+      @logfile    = "log"
+      @alive_time = 5000
+      @outfiles   =  []
+      @outfiles = ["output_a", "output_b"]
+    end
+  end
+
+  before do
+    @calc = CalcStarted   .new(CALC_DIR)
+    File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
+    File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
+    File.open(OUTFILES[0], "w")
+  end
+
+  it "should return :started" do
+    @calc.state.should == :started
+  end
+
+  after do
+    FileUtils.rm(OUTFILES[0]) if File.exist?(OUTFILES[0])
+  end
+end
 
 describe Comana, "with terminated" do
   class CalcTerminated < Comana
     def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
-    def send_command      ;           ; end
-    def prepare_next      ;           ; end
-    def initial_state     ;           ; end
-    def latest_state      ;           ; end
-    def teardown          ;           ; end
     def set_parameters
       @logfile    = "log"
       @alive_time = 500
+      @outfiles   =  []
     end
   end
 
@@ -149,17 +132,17 @@ describe Comana, "with terminated" do
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    File.open(LOG, "w")
+    File.open(LOCKFILE, "w")
   end
 
   it "should return the state" do
-    File.open(LOG, "w")
-    File.utime(NOW - 1000 ,NOW - 1000, LOG)
+    File.open(LOCKFILE, "w")
+    File.utime(NOW - 1000 ,NOW - 1000, LOCKFILE)
     @calc_terminated  .state.should == :terminated
   end
 
   after do
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 end
 
@@ -167,14 +150,10 @@ describe Comana, "with next" do
   class CalcNext < Comana
     def normal_ended?     ; true      ; end
     def finished?         ; false     ; end
-    def send_command      ;           ; end
-    def prepare_next      ;           ; end
-    def initial_state     ;           ; end
-    def latest_state      ;           ; end
-    def teardown          ;           ; end
     def set_parameters
       @logfile    = "log"
       @alive_time =  500
+      @outfiles   =  []
     end
   end
 
@@ -183,18 +162,18 @@ describe Comana, "with next" do
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    File.open(LOG, "w")
+    File.open(LOCKFILE, "w")
   end
 
   it "should return the state" do
 
-    File.open(LOG, "w")
-    File.utime(NOW - 1000 ,NOW - 1000, LOG)
+    File.open(LOCKFILE, "w")
+    File.utime(NOW - 1000 ,NOW - 1000, LOCKFILE)
     @calc_next        .state.should == :next
   end
 
   after do
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 end
 
@@ -204,18 +183,18 @@ describe Comana, "with finished" do
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    #FileUtils.rm(LOG) if File.exist?(LOG)
-    File.open(LOG, "w")
+    #FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
+    File.open(LOCKFILE, "w")
   end
 
   it "should return the state" do
 
-    File.open(LOG, "w")
-    File.utime(NOW - 1000 ,NOW - 1000, LOG)
+    File.open(LOCKFILE, "w")
+    File.utime(NOW - 1000 ,NOW - 1000, LOCKFILE)
     @calc_finished    .state.should == :finished
   end
 
   after do
-    FileUtils.rm(LOG) if File.exist?(LOG)
+    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
   end
 end

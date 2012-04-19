@@ -11,6 +11,8 @@ class Comana
   class NotImplementedError < Exception; end
   class AlreadyStartedError < Exception; end
 
+  attr_reader :dir
+
   #
   def initialize(dir)
     @dir = dir

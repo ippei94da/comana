@@ -11,7 +11,6 @@ class Comana
 end
 
 class CalcFinished    < Comana
-  def normal_ended?     ; true      ; end
   def finished?         ; true      ; end
   def set_parameters
     @logfile    = "log"
@@ -22,7 +21,6 @@ end
 
 describe Comana, "with not calculated" do
   class CalcYet < Comana
-    def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
     def set_parameters
       @logfile    = "log"
@@ -63,7 +61,6 @@ end
 
 describe Comana, "with log" do
   class CalcStarted < Comana
-    def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
     def set_parameters
       @logfile    = "log"
@@ -90,7 +87,6 @@ end
 
 describe Comana, "with output, without lock" do
   class CalcStarted < Comana
-    def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
     def set_parameters
       @logfile    = "log"
@@ -118,7 +114,6 @@ end
 
 describe Comana, "with terminated" do
   class CalcTerminated < Comana
-    def normal_ended?     ; false     ; end
     def finished?         ; false     ; end
     def set_parameters
       @logfile    = "log"
@@ -139,37 +134,6 @@ describe Comana, "with terminated" do
     File.open(LOCKFILE, "w")
     File.utime(NOW - 1000 ,NOW - 1000, LOCKFILE)
     @calc_terminated  .state.should == :terminated
-  end
-
-  after do
-    FileUtils.rm(LOCKFILE) if File.exist?(LOCKFILE)
-  end
-end
-
-describe Comana, "with next" do
-  class CalcNext < Comana
-    def normal_ended?     ; true      ; end
-    def finished?         ; false     ; end
-    def set_parameters
-      @logfile    = "log"
-      @alive_time =  500
-      @outfiles   =  []
-    end
-  end
-
-  before do
-    @calc_next         = CalcNext      .new(CALC_DIR)
-
-    File.utime(NOW - 1000 ,NOW - 1000, "#{CALC_DIR}/input_a")
-    File.utime(NOW - 2000 ,NOW - 2000, "#{CALC_DIR}/input_b")
-    File.open(LOCKFILE, "w")
-  end
-
-  it "should return the state" do
-
-    File.open(LOCKFILE, "w")
-    File.utime(NOW - 1000 ,NOW - 1000, LOCKFILE)
-    @calc_next        .state.should == :next
   end
 
   after do

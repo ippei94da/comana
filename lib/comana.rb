@@ -23,11 +23,9 @@ class Comana
   #   :yet           not started
   #   :started       started, but not ended, including short time from last output
   #   :terminated    started, but long time no output
-  #   :next          started, normal ended and need next calculation
   #   :finished      started, normal ended and not need next calculation
   def state
     return :finished   if finished?
-    return :next       if normal_ended?
     return :yet        unless started?
     return :terminated if (Time.now - latest_modified_time > @alive_time)
     return :started    
@@ -40,21 +38,6 @@ class Comana
     raise AlreadyStartedError if started?
     File.open(@log, "w")
     send_command
-  end
-
-  # Generate next calculation and return the computation object.
-  def prepare_next
-    raise NotImplementedError, "#{self.class}::prepare_next need to be redefined"
-  end
-
-  # Return initial state.
-  def initial_state
-    raise NotImplementedError, "#{self.class}::initial_state need to be redefined"
-  end
-
-  # Return latest state.
-  def latest_state
-    raise NotImplementedError, "#{self.class}::latest_state need to be redefined"
   end
 
   private
@@ -91,12 +74,6 @@ class Comana
 
   # Return true if the condition is satisfied.
   # E.g., when calculation output contains orthodox ending sequences.
-  def normal_ended?
-    raise NotImplementedError, "#{self.class}::normal_ended? need to be redefined"
-  end
-
-  # Return true if the condition is satisfied.
-  # E.g., calculation achieve convergence.
   def finished?
     raise NotImplementedError, "#{self.class}::finished? need to be redefined"
   end

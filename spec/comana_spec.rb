@@ -16,7 +16,7 @@ describe Comana, "not calculated" do
     def set_parameters
       @lockfile   = "lock"
       @alive_time = 3600
-      @outfiles   =  []
+      @outfiles   = ["output"]
     end
   end
   before do
@@ -57,7 +57,7 @@ describe Comana, "with lock" do
     def set_parameters
       @lockfile   = "lock"
       @alive_time = 5000
-      @outfiles   =  []
+      @outfiles   = ["output"]
     end
   end
 
@@ -104,7 +104,7 @@ describe Comana, "terminated" do
     def set_parameters
       @lockfile   = "lock"
       @alive_time = 500
-      @outfiles   =  []
+      @outfiles   = ["output"]
     end
   end
 
@@ -128,7 +128,7 @@ describe Comana, "finished" do
     def set_parameters
       @lockfile    = "lock"
       @alive_time =  500
-      @outfiles   =  []
+      @outfiles   = ["output"]
     end
   end
 

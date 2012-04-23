@@ -56,7 +56,8 @@ class Comana
   end
 
   # Return latest modified time of files in calc dir recursively.
-  #require "find"
+  # require "find"
+  # Not only @outfiles, to catch an irregular state at the beginning before output.
   def latest_modified_time
     tmp = Dir.glob("#{@dir}/**/*").max_by do |file|
       File.mtime(file)

@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "comana"
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
@@ -27,8 +27,18 @@ Gem::Specification.new do |s|
     "comana.gemspec",
     "lib/comana.rb",
     "spec/comana_spec.rb",
-    "spec/dummy/input_a",
-    "spec/dummy/input_b",
+    "spec/locked/input_a",
+    "spec/locked/input_b",
+    "spec/locked/lock",
+    "spec/locked_outputted/input_a",
+    "spec/locked_outputted/input_b",
+    "spec/locked_outputted/lock",
+    "spec/locked_outputted/output",
+    "spec/not_calculated/input_a",
+    "spec/not_calculated/input_b",
+    "spec/outputted/input_a",
+    "spec/outputted/input_b",
+    "spec/outputted/output",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/ippei94da/comana"

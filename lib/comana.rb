@@ -35,8 +35,11 @@ class Comana
   # If log of Comana exist, raise Comana::AlreadyStartedError,
   # because the calculation has been done by other process already.
   def calculate
-    raise AlreadyStartedError if started?
-    File.open(@lockfile, "w")
+    begin
+      Dir.mkdir @lockdir
+    rescue Errno::EEXIST
+      raise AlreadyStartedError
+    end
     send_command
   end
 
@@ -50,7 +53,7 @@ class Comana
     raise NotImplementedError, "#{self.class}::set_parameters need to be redefined"
 
     # e.g.,
-    #@lockfile    = "comana.lock"
+    #@lockdir    = "comana_lock"
     #@alive_time = 3600
     #@outfiles   = ["output_a", "ouput_b"] # Files only to output should be indicated.
   end
@@ -66,10 +69,10 @@ class Comana
   end
 
   def started?
-    return true if File.exist?( "#{@dir}/#{@lockfile}" )
-    @outfiles.each do |file|
-      return true if File.exist?( "#{@dir}/#{file}" )
-    end
+    return true if File.exist?( "#{@dir}/#{@lockdir}" )
+    #@outfiles.each do |file|
+    #  return true if File.exist?( "#{@dir}/#{file}" )
+    #end
     return false
   end
 

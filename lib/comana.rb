@@ -36,7 +36,7 @@ class Comana
   # because the calculation has been done by other process already.
   def calculate
     raise AlreadyStartedError if started?
-    File.open(@log, "w")
+    File.open(@lockfile, "w")
     send_command
   end
 
@@ -50,7 +50,7 @@ class Comana
     raise NotImplementedError, "#{self.class}::set_parameters need to be redefined"
 
     # e.g.,
-    #@logfile    = "comana.log"
+    #@lockfile    = "comana.lock"
     #@alive_time = 3600
     #@outfiles   = ["output_a", "ouput_b"] # Files only to output should be indicated.
   end
@@ -65,7 +65,7 @@ class Comana
   end
 
   def started?
-    return true if File.exist?( "#{@dir}/#{@logfile}" )
+    return true if File.exist?( "#{@dir}/#{@lockfile}" )
     @outfiles.each do |file|
       return true if File.exist?( "#{@dir}/#{file}" )
     end

@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "comana"
-  s.version = "0.0.0"
+  s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
-  s.date = "2012-04-03"
+  s.date = "2012-04-23"
   s.description = "An aim of this gem is to provide a framework of\n    managing scientific computing.\n    Researchers on computing have to check calculation and\n    generate new calculation and execute, repeatedly.\n    The abstract class that this gem provide would help the work.\n  "
   s.email = "ippei94da@gmail.com"
   s.extra_rdoc_files = [
@@ -24,16 +24,15 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "comana.gemspec",
     "lib/comana.rb",
     "spec/comana_spec.rb",
-    "spec/dummy/input_a",
-    "spec/dummy/input_b",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/ippei94da/comana"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.21"
+  s.rubygems_version = "1.8.11"
   s.summary = "Manager for scientific computing"
 
   if s.respond_to? :specification_version then

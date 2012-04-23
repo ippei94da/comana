@@ -27,6 +27,8 @@ Gem::Specification.new do |s|
     "comana.gemspec",
     "lib/comana.rb",
     "spec/comana_spec.rb",
+    "spec/dummy/input_a",
+    "spec/dummy/input_b",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/ippei94da/comana"

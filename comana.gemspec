@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "comana"
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
@@ -29,10 +29,8 @@ Gem::Specification.new do |s|
     "spec/comana_spec.rb",
     "spec/locked/input_a",
     "spec/locked/input_b",
-    "spec/locked/lock",
     "spec/locked_outputted/input_a",
     "spec/locked_outputted/input_b",
-    "spec/locked_outputted/lock",
     "spec/locked_outputted/output",
     "spec/not_calculated/input_a",
     "spec/not_calculated/input_b",

@@ -36,9 +36,9 @@ class Comana
   # because the calculation has been done by other process already.
   def calculate
     begin
-      Dir.mkdir @lockdir
+      Dir.mkdir "#{@dir}/#{@lockdir}"
     rescue Errno::EEXIST
-      raise AlreadyStartedError
+      raise AlreadyStartedError, "Exist #{@dir}/#{@lockdir}"
     end
     send_command
   end

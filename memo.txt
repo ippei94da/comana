@@ -1,0 +1,3 @@
+Comana don't have information of output files.
+Because it is difficult to define final output and to deal systematically.
+e.g., repeated calculation till convergence.

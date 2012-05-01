@@ -7,22 +7,17 @@ class Comana
   public :latest_modified_time, :started?
 end
 
-describe Comana, "not calculated" do
+describe Comana, "not started" do
   class CalcYet < Comana
     def finished?         ; false     ; end
-    def set_parameters
-      @lockdir   = "lock"
-      @alive_time = 3600
-      @outfiles   = ["output"]
-    end
   end
   before do
-    calc_dir = "spec/not_calculated"
+    calc_dir = "spec/not_started"
     @calc = CalcYet.new(calc_dir)
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{calc_dir}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
-    @lockdir = "#{calc_dir}/lockdir"
+    @lockdir = "#{calc_dir}/comana_lock"
     FileUtils.rm(@lockdir) if File.exist?(@lockdir)
   end
 
@@ -51,11 +46,6 @@ end
 describe Comana, "with lock" do
   class CalcStarted < Comana
     def finished?         ; false     ; end
-    def set_parameters
-      @lockdir   = "lock"
-      @alive_time = 5000
-      @outfiles   = ["output"]
-    end
   end
 
   before do
@@ -73,11 +63,6 @@ end
 describe Comana, "with output, without lock" do
   class CalcStarted < Comana
     def finished?         ; false     ; end
-    def set_parameters
-      @lockdir   = "lock"
-      @alive_time = 5000
-      @outfiles   = ["output"]
-    end
   end
 
   before do
@@ -99,10 +84,10 @@ end
 describe Comana, "terminated" do
   class CalcTerminated < Comana
     def finished?         ; false     ; end
-    def set_parameters
-      @lockdir   = "lock"
+    def initialize(dir)
+      @dir = dir
+      @lockdir   = "comana_lock"
       @alive_time = 500
-      @outfiles   = ["output"]
     end
   end
 
@@ -113,7 +98,7 @@ describe Comana, "terminated" do
     File.utime(NOW - 1000 ,NOW - 1000, "#{calc_dir}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
     File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/output")
-    File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/lock")
+    File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/comana_lock")
   end
 
   it "should return the state" do
@@ -124,11 +109,6 @@ end
 describe Comana, "finished" do
   class CalcFinished    < Comana
     def finished?         ; true      ; end
-    def set_parameters
-      @lockdir    = "lock"
-      @alive_time =  500
-      @outfiles   = ["output"]
-    end
   end
 
   before do

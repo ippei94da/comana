@@ -13,10 +13,11 @@ class Comana
 
   attr_reader :dir
 
-  #
+  # You can redefine in subclass to modify from default values.
   def initialize(dir)
-    @dir = dir
-    set_parameters
+    @dir = dir # redefine in subclass. 
+    @lockdir    = "comana_lock"
+    @alive_time = 3600
   end
 
   # Return a symbol which indicate state of calculation.
@@ -34,33 +35,23 @@ class Comana
   # Execute calculation.
   # If log of Comana exist, raise Comana::AlreadyStartedError,
   # because the calculation has been done by other process already.
-  def calculate
+  def start
     begin
       Dir.mkdir "#{@dir}/#{@lockdir}"
     rescue Errno::EEXIST
       raise AlreadyStartedError, "Exist #{@dir}/#{@lockdir}"
     end
-    send_command
+    calculate
   end
 
   private
 
-  def send_command
+  def calculate
     raise NotImplementedError, "#{self.class}::send_command need to be redefined"
-  end
-
-  def set_parameters
-    raise NotImplementedError, "#{self.class}::set_parameters need to be redefined"
-
-    # e.g.,
-    #@lockdir    = "comana_lock"
-    #@alive_time = 3600
-    #@outfiles   = ["output_a", "ouput_b"] # Files only to output should be indicated.
   end
 
   # Return latest modified time of files in calc dir recursively.
   # require "find"
-  # Not only @outfiles, to catch an irregular state at the beginning before output.
   def latest_modified_time
     tmp = Dir.glob("#{@dir}/**/*").max_by do |file|
       File.mtime(file)
@@ -70,14 +61,10 @@ class Comana
 
   def started?
     return true if File.exist?( "#{@dir}/#{@lockdir}" )
-    #@outfiles.each do |file|
-    #  return true if File.exist?( "#{@dir}/#{file}" )
-    #end
     return false
   end
 
   # Return true if the condition is satisfied.
-  # E.g., when calculation output contains orthodox ending sequences.
   def finished?
     raise NotImplementedError, "#{self.class}::finished? need to be redefined"
   end

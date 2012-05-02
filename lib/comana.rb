@@ -41,13 +41,20 @@ class Comana
     rescue Errno::EEXIST
       raise AlreadyStartedError, "Exist #{@dir}/#{@lockdir}"
     end
-    calculate
+    while (! finished?)
+      calculate
+      prepare_next
+    end
   end
 
   private
 
   def calculate
-    raise NotImplementedError, "#{self.class}::send_command need to be redefined"
+    raise NotImplementedError, "#{self.class}::calculate need to be redefined"
+  end
+
+  def prepare_next
+    raise NotImplementedError, "#{self.class}::prepare_next need to be redefined"
   end
 
   # Return latest modified time of files in calc dir recursively.

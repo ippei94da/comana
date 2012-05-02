@@ -41,10 +41,16 @@ class Comana
     rescue Errno::EEXIST
       raise AlreadyStartedError, "Exist #{@dir}/#{@lockdir}"
     end
-    while (! finished?)
+
+    while true
       calculate
-      prepare_next
+      if finished?
+        break
+      else
+        prepare_next
+      end
     end
+    puts "Done."
   end
 
   private

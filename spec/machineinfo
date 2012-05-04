@@ -1,0 +1,10 @@
+--- # vim: syntax=yaml
+
+Host1:
+  data1: "1-1"
+  data2: "1-2"
+
+Host2:
+  data1: "2-1"
+  data2: "2-2"
+

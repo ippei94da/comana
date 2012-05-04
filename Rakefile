@@ -18,7 +18,8 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/ippei94da/comana"
   gem.license = "MIT"
   gem.summary = %Q{Manager for scientific computing}
-  gem.description = %Q{An aim of this gem is to provide a framework of
+  gem.description = %Q{Comana, COmputation MANAger,
+    is a software to provide a framework of
     managing scientific computing.
     Researchers on computing have to check calculation and
     generate new calculation and execute, repeatedly.

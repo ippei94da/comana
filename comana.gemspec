@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = "comana"
-  s.version = "0.0.4"
+  s.version = "0.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
-  s.date = "2012-04-23"
-  s.description = "An aim of this gem is to provide a framework of\n    managing scientific computing.\n    Researchers on computing have to check calculation and\n    generate new calculation and execute, repeatedly.\n    The abstract class that this gem provide would help the work.\n  "
+  s.date = "2012-05-05"
+  s.description = "Comana, COmputation MANAger,\n    is a software to provide a framework of\n    managing scientific computing.\n    Researchers on computing have to check calculation and\n    generate new calculation and execute, repeatedly.\n    The abstract class that this gem provide would help the work.\n  "
   s.email = "ippei94da@gmail.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -25,15 +25,23 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "comana.gemspec",
+    "dot.machineinfo",
     "lib/comana.rb",
-    "spec/comana_spec.rb",
+    "lib/comana/computationmanager.rb",
+    "lib/comana/machineinfo.rb",
+    "memo.txt",
+    "spec/computationmanager_spec.rb",
+    "spec/locked/comana_lock/dummy",
     "spec/locked/input_a",
     "spec/locked/input_b",
+    "spec/locked_outputted/comana_lock/dummy",
     "spec/locked_outputted/input_a",
     "spec/locked_outputted/input_b",
     "spec/locked_outputted/output",
-    "spec/not_calculated/input_a",
-    "spec/not_calculated/input_b",
+    "spec/machineinfo",
+    "spec/machineinfo_spec.rb",
+    "spec/not_started/input_a",
+    "spec/not_started/input_b",
     "spec/outputted/input_a",
     "spec/outputted/input_b",
     "spec/outputted/output",
@@ -42,7 +50,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/ippei94da/comana"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.11"
+  s.rubygems_version = "1.8.21"
   s.summary = "Manager for scientific computing"
 
   if s.respond_to? :specification_version then

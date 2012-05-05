@@ -1,0 +1,3 @@
+--- # vim:syntax=yaml
+"Host1":
+  "vasp": "/usr/local/calc/vasp/vasp4631serial"

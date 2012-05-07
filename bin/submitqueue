@@ -22,7 +22,15 @@ op.parse!(ARGV)
 OPTS[:machineinfo] = MachineInfo.load_file
 
 qs = QueueSubmitter.new(OPTS)
-qs.start
+begin
+  qs.start
+rescue QueueSubmitter::AlreadyStartedError
+  puts "Already started. Exit"
+  exit
+rescue QueueSubmitter::PrepareNextError
+  puts "Submitted. Exit"
+  exit
+end
 
 #yaml = YAML.load_file("#{ENV["HOME"]}/.machineinfo")
 #pp yaml

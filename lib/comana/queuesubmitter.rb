@@ -10,12 +10,14 @@ require "comana/machineinfo.rb"
 class QueueSubmitter < ComputationManager
   QSUB_SCRIPT = "script.qsub"
 
+  class PrepareNextError < Exception; end
+
   #
   def initialize(opts)
     super(opts[:d])
     @command = opts[:c]
     @nodes   = opts[:n]
-    @speeed  = opts[:s]
+    @speed  = opts[:s]
     @machineinfo = opts[:machineinfo]
     @lockdir = "lock_queuesubmitter"
   end
@@ -29,8 +31,9 @@ class QueueSubmitter < ComputationManager
     system("cd #{@dir}; qsub #{script_path} > #{@dir}/#{@lockdir}/stdout")
   end
 
+  # Raise QueueSubmitter::PrepareNextError when called.
   def prepare_next
-    # do nothing
+    raise PrepareNextError
   end
 
   def finished?
@@ -40,24 +43,23 @@ class QueueSubmitter < ComputationManager
   private
 
   def dump_qsub_str(io = nil)
-    @speed 
-
     fs = @machineinfo.get_info("fileserver") #fileserver
     node_info = @machineinfo.get_info(@nodes)
-    num = node_info["economy_mode"]
-    num = node_info["speed_mode"] if @speed
+    num = node_info["economy_nodes"]
+    num = node_info["speed_nodes"] if @speed
 
     str = [
       "#! /bin/sh",
       "#PBS -N #{@dir}",
-      "#PBS -l nodes=4:ppn=1:#{@nodes}",
+      "#PBS -l nodes=#{num}:ppn=1:#{@nodes}",
       "#PBS -j oe",
       "mkdir -p ${PBS_O_WORKDIR}",
+      "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",
       "rsync -azq --delete #{fs}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR}",
       "cd ${PBS_O_WORKDIR}",
       "#{@command}",
-      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR}",
-      "rm -rf ${PBS_O_WORKDIR}",
+      "#rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR}",
+      "#rm -rf ${PBS_O_WORKDIR}",
     ].join("\n")
 
     if io

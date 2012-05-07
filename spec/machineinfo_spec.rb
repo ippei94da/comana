@@ -12,8 +12,8 @@ describe MachineInfo do
       DATA_FILE = "spec/machineinfo"
       #DATA_FILE = "spec/dummy.yaml"
       #data = {
-      #  "Host1" => { "data1" => "1-1", "data2" => "1-2" },
-      #  "Host2" => { "data1" => "2-1", "data2" => "2-2" },
+      #  "SeriesA" => { "data1" => "A-1", "data2" => "A-2" },
+      #  "SeriesB" => { "data1" => "B-1", "data2" => "B-2" },
       #}
       #io = File.open(DATA_FILE, "w")
       #YAML.dump(data, io)
@@ -24,7 +24,7 @@ describe MachineInfo do
       it { lambda{MachineInfo.load_file(DATA_FILE)}.should_not raise_error}
 
       mi00 = MachineInfo.load_file(DATA_FILE)
-      it {mi00.get_host("Host1").should == { "data1" => "1-1", "data2" => "1-2" } }
+      it {mi00.get_info("SeriesA").should == { "data1" => "A-1", "data2" => "A-2" } }
 
       #FileUtils.rm DATA_FILE
     end
@@ -34,21 +34,30 @@ describe MachineInfo do
     end
   end
 
-  describe "#get_host" do
+  describe "#get_info" do
     before do
       @mi00 = MachineInfo.new({
-        "Host1" => { "data1" => "1-1", "data2" => "1-2" },
-        "Host2" => { "data1" => "2-1", "data2" => "2-2" },
+        "SeriesA" => { "data1" => "A-1", "data2" => "A-2" },
+        "SeriesB" => { "data1" => "B-1", "data2" => "B-2" },
       })
     end
 
-    context "exist in data" do
-      subject { @mi00.get_host("Host1") }
-      it {should == { "data1" => "1-1", "data2" => "1-2" } }
+    context "mach to hostname in data" do
+      subject { @mi00.get_info("SeriesA") }
+      it {should == { "data1" => "A-1", "data2" => "A-2" } }
+    end
+
+    context "series name + integers" do
+      subject { @mi00.get_info("SeriesA00") }
+      it {should == { "data1" => "A-1", "data2" => "A-2" } }
+    end
+
+    context "series name + alphabet" do
+      it {lambda{@mi00.get_info("seriesAB")}.should raise_error(MachineInfo::NoEntryError)}
     end
 
     context "no entry" do
-      it {lambda{@mi00.get_host("")}.should raise_error(MachineInfo::NoEntryError)}
+      it {lambda{@mi00.get_info("")}.should raise_error(MachineInfo::NoEntryError)}
     end
   end
 

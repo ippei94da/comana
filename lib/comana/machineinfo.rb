@@ -3,8 +3,10 @@
 
 require "yaml"
 
-#
-#
+# Series name is composed only of alphabets.
+# Host name is started by the series name and followed by integers.
+# E.g.,
+#   "Fe", "Fe00", "Fe01" are of series "Fe" and not "F"
 #
 class MachineInfo
 
@@ -15,18 +17,15 @@ class MachineInfo
     @data = data
   end
 
-  def self.load_file(data_file)
-    #pp data_file
-    #pp ENV["PWD"]
-    #pp File.open(DATA_FILE, "r").readlines
+  def self.load_file(data_file = (ENV["HOME"] + "/.machineinfo"))
     data = YAML.load_file(data_file)
     MachineInfo.new data
-    #pp @data
   end
 
-  def get_host(host)
-    raise NoEntryError unless @data.has_key?(host)
-    @data[host]
+  def get_info(host)
+    series = host.sub(/\d*$/, "")
+    raise NoEntryError unless @data.has_key?(series)
+    @data[series]
   end
 
 end

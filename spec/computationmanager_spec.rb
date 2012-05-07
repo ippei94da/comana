@@ -3,12 +3,12 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 NOW = Time.now
 
-class Comana
+class ComputationManager
   public :latest_modified_time, :started?
 end
 
-describe Comana, "not started" do
-  class CalcYet < Comana
+describe ComputationManager, "not started" do
+  class CalcYet < ComputationManager
     def finished?         ; false     ; end
   end
   before do
@@ -17,7 +17,7 @@ describe Comana, "not started" do
 
     File.utime(NOW - 1000 ,NOW - 1000, "#{calc_dir}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
-    @lockdir = "#{calc_dir}/comana_lock"
+    @lockdir = "#{calc_dir}/lock_comana"
     FileUtils.rm(@lockdir) if File.exist?(@lockdir)
   end
 
@@ -43,8 +43,8 @@ describe Comana, "not started" do
   #end
 end
 
-describe Comana, "with lock" do
-  class CalcStarted < Comana
+describe ComputationManager, "with lock" do
+  class CalcStarted < ComputationManager
     def finished?         ; false     ; end
   end
 
@@ -60,8 +60,8 @@ describe Comana, "with lock" do
   end
 end
 
-describe Comana, "with output, without lock" do
-  class CalcStarted < Comana
+describe ComputationManager, "with output, without lock" do
+  class CalcStarted < ComputationManager
     def finished?         ; false     ; end
   end
 
@@ -81,12 +81,12 @@ describe Comana, "with output, without lock" do
 
 end
 
-describe Comana, "terminated" do
-  class CalcTerminated < Comana
+describe ComputationManager, "terminated" do
+  class CalcTerminated < ComputationManager
     def finished?         ; false     ; end
     def initialize(dir)
       @dir = dir
-      @lockdir   = "comana_lock"
+      @lockdir   = "lock_comana"
       @alive_time = 500
     end
   end
@@ -98,7 +98,7 @@ describe Comana, "terminated" do
     File.utime(NOW - 1000 ,NOW - 1000, "#{calc_dir}/input_a")
     File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
     File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/output")
-    File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/comana_lock")
+    File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/lock_comana")
   end
 
   it "should return the state" do
@@ -106,8 +106,8 @@ describe Comana, "terminated" do
   end
 end
 
-describe Comana, "finished" do
-  class CalcFinished    < Comana
+describe ComputationManager, "finished" do
+  class CalcFinished    < ComputationManager
     def finished?         ; true      ; end
   end
 
@@ -123,3 +123,35 @@ describe Comana, "finished" do
     @calc_finished    .state.should == :finished
   end
 end
+
+describe ComputationManager, "cannot execute" do
+  class CalcNotExecutable    < ComputationManager
+    def calculate
+      system "" # notExistCommand
+    end
+
+    def finished?
+      return false
+    end
+
+    def prepare_next
+      #return false
+      raise
+    end
+  end
+
+  before do
+    calc_dir = "spec/not_executable"
+    @calc     = CalcNotExecutable  .new(calc_dir)
+    #File.utime(NOW - 1000 ,NOW - 1000, "#{calc_dir}/input_a")
+    #File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
+    @lockdir = calc_dir + "/lock_comana"
+
+    Dir.rmdir(@lockdir) if File.exist?(@lockdir)
+  end
+
+  it "should raise error" do
+    lambda{@calc.start}.should raise_error(ComputationManager::ExecuteError)
+  end
+end
+

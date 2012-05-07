@@ -7,16 +7,17 @@
 # This profides a framework of scientific computation.
 # Users have to redefine some methods in subclasses for various computation.
 # 
-class Comana
+class ComputationManager
   class NotImplementedError < Exception; end
   class AlreadyStartedError < Exception; end
+  class ExecuteError < Exception; end
 
   attr_reader :dir
 
   # You can redefine in subclass to modify from default values.
   def initialize(dir)
     @dir = dir # redefine in subclass. 
-    @lockdir    = "comana_lock"
+    @lockdir    = "lock_comana"
     @alive_time = 3600
   end
 
@@ -33,7 +34,7 @@ class Comana
   end
 
   # Execute calculation.
-  # If log of Comana exist, raise Comana::AlreadyStartedError,
+  # If log of ComputationManager exist, raise ComputationManager::AlreadyStartedError,
   # because the calculation has been done by other process already.
   def start
     begin
@@ -43,7 +44,8 @@ class Comana
     end
 
     while true
-      calculate
+      end_status = calculate
+      raise ExecuteError unless end_status
       if finished?
         break
       else
@@ -55,6 +57,9 @@ class Comana
 
   private
 
+  # Redefine in subclass.
+  # Return nil if cannot execute, return false if error in executing,
+  # like Kernel.system.
   def calculate
     raise NotImplementedError, "#{self.class}::calculate need to be redefined"
   end

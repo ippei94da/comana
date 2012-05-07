@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
-  s.date = "2012-05-05"
+  s.date = "2012-05-07"
   s.description = "Comana, COmputation MANAger,\n    is a software to provide a framework of\n    managing scientific computing.\n    Researchers on computing have to check calculation and\n    generate new calculation and execute, repeatedly.\n    The abstract class that this gem provide would help the work.\n  "
   s.email = "ippei94da@gmail.com"
   s.extra_rdoc_files = [
@@ -50,7 +50,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/ippei94da/comana"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.21"
+  s.rubygems_version = "1.8.11"
   s.summary = "Manager for scientific computing"
 
   if s.respond_to? :specification_version then

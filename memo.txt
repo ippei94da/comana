@@ -3,8 +3,9 @@ Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
 0.0.7
-  bin/submitqueue and lib/queuesubmitter.rb are removed,
-  because its danger to rsync large directory.
+  Bugfix of danger to rsync large directory:
+    bin/submitqueue is removed.
+    lib/queuesubmitter.rb is modified.
 
 0.0.6 release
   bin/submitqueue is add.

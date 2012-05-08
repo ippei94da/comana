@@ -2,14 +2,18 @@ Comana don't have information of output files.
 Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
+0.0.7
+  bin/submitqueue and lib/queuesubmitter.rb are removed,
+  because its danger to rsync large directory.
+
 0.0.6 release
-  Add bin/submitqueue.
-  Add lib/queuesubmitter.rb.
+  bin/submitqueue is add.
+  lib/queuesubmitter.rb is add.
 
 0.0.5 release
-  Changed directory structure and file name.
-  Changed method name.
-  Added MachineInfo.
+  Directory structure and file names are changed.
+  Method names are hanged.
+  MachineInfo is added.
 
 0.0.4 release
 

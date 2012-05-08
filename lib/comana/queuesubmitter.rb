@@ -12,9 +12,14 @@ class QueueSubmitter < ComputationManager
 
   class PrepareNextError < Exception; end
 
-  #
+  # opts is a hash includes data belows:
+  #   :d => calculation as comana subclass.
+  #   :c => command line
+  #   :n => 
+  #   :s => 
+  #   :machineinfo => 
   def initialize(opts)
-    super(opts[:d])
+    super(opts[:d].dir)
     @command = opts[:c]
     @nodes   = opts[:n]
     @speed  = opts[:s]

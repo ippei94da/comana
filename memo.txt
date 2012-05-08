@@ -2,6 +2,10 @@ Comana don't have information of output files.
 Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
+0.0.6 release
+  Add bin/submitqueue.
+  Add lib/queuesubmitter.rb.
+
 0.0.5 release
   Changed directory structure and file name.
   Changed method name.

@@ -51,7 +51,7 @@ class QueueSubmitter < ComputationManager
     str = [
       "#! /bin/sh",
       "#PBS -N #{@dir}",
-      "#PBS -l nodes=#{num}:ppn=1:#{@nodes}",
+      "#PBS -l nodes=#{num}:ppn=1:#{@nodes},walltime=168:00:00",
       "#PBS -j oe",
       "mkdir -p ${PBS_O_WORKDIR}",
       "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",

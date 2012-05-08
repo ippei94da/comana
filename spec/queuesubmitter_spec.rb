@@ -28,7 +28,7 @@ describe QueueSubmitter do
       @correct = [
         "#! /bin/sh",
         "#PBS -N dir_name",
-        "#PBS -l nodes=4:ppn=1:Nodes",
+        "#PBS -l nodes=4:ppn=1:Nodes,walltime=168:00:00",
         "#PBS -j oe",
         "mkdir -p ${PBS_O_WORKDIR}",
         "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",

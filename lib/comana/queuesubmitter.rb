@@ -9,29 +9,36 @@ require "comana/machineinfo.rb"
 #
 class QueueSubmitter < ComputationManager
   QSUB_SCRIPT = "script.qsub"
+  WALLTIME = "168:00:00"
 
   class PrepareNextError < Exception; end
+  class InitializeError < Exception; end
 
   # opts is a hash includes data belows:
   #   :d => calculation as comana subclass.
-  #   :c => command line
-  #   :n => 
-  #   :s => 
-  #   :machineinfo => 
+  #   :c => command line.
+  #   :n => name of cluster.
+  #   :s => flag for speed prior mode (option).
+  #   :machineinfo => MachineInfo class instance.
+  # NOTE:
+  #   :d is a comana subclass not directory name to check to be calculatable.
   def initialize(opts)
+    raise InitializeError unless opts.has_key?(:d)
+    raise InitializeError unless opts.has_key?(:c)
+    raise InitializeError unless opts.has_key?(:n)
+    raise InitializeError unless opts.has_key?(:machineinfo)
+
     super(opts[:d].dir)
     @command = opts[:c]
     @nodes   = opts[:n]
-    @speed  = opts[:s]
+    @speed   = opts[:s]
     @machineinfo = opts[:machineinfo]
     @lockdir = "lock_queuesubmitter"
   end
 
   def calculate
     script_path = "#{@dir}/#{QSUB_SCRIPT}"
-    File.open(script_path, "w") do |io|
-      dump_qsub_str(io)
-    end
+    File.open(script_path, "w") { |io| dump_qsub_str(io) }
 
     system("cd #{@dir}; qsub #{script_path} > #{@dir}/#{@lockdir}/stdout")
   end
@@ -56,7 +63,7 @@ class QueueSubmitter < ComputationManager
     str = [
       "#! /bin/sh",
       "#PBS -N #{@dir}",
-      "#PBS -l nodes=#{num}:ppn=1:#{@nodes},walltime=168:00:00",
+      "#PBS -l nodes=#{num}:ppn=1:#{@nodes},walltime=#{WALLTIME}",
       "#PBS -j oe",
       "mkdir -p ${PBS_O_WORKDIR}",
       "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",

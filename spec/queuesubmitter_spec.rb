@@ -11,10 +11,72 @@ end
 
 #describe QueueSubmitter, "with chars to be escaped" do
 describe QueueSubmitter do
+  describe "#initialize" do
+    context "opts not have :d" do
+      opts = {
+        #:d => "dir_name",
+        :c => "command_line",
+        :n => "Nodes",
+        :s => true,
+        :machineinfo => MachineInfo.new(
+          "fileserver" => "FS",
+          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+        )
+      }
+      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
+        QueueSubmitter::InitializeError)}
+    end
+
+    context "opts not have :c" do
+      opts = {
+        :d => "dir_name",
+        #:c => "command_line",
+        :n => "Nodes",
+        :s => true,
+        :machineinfo => MachineInfo.new(
+          "fileserver" => "FS",
+          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+        )
+      }
+      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
+        QueueSubmitter::InitializeError)}
+    end
+
+    context "opts not have :n" do
+      opts = {
+        :d => "dir_name",
+        :c => "command_line",
+        #:n => "Nodes",
+        :s => true,
+        :machineinfo => MachineInfo.new(
+          "fileserver" => "FS",
+          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+        )
+      }
+      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
+        QueueSubmitter::InitializeError)}
+    end
+
+    context "opts not have :c" do
+      opts = {
+        :d => "dir_name",
+        :c => "command_line",
+        :n => "Nodes",
+        :s => true,
+        #:machineinfo => MachineInfo.new(
+        #  "fileserver" => "FS",
+        #  "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+        #)
+      }
+      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
+        QueueSubmitter::InitializeError)}
+    end
+  end
+
   describe "#dump_qsub_str" do
     before do
       opts = {
-        :d => "dir_name",
+        :d => ComputationManager.new("spec/not_started"),
         :c => "command_line",
         :n => "Nodes",
         :s => true,
@@ -27,7 +89,7 @@ describe QueueSubmitter do
 
       @correct = [
         "#! /bin/sh",
-        "#PBS -N dir_name",
+        "#PBS -N spec/not_started",
         "#PBS -l nodes=4:ppn=1:Nodes,walltime=168:00:00",
         "#PBS -j oe",
         "mkdir -p ${PBS_O_WORKDIR}",

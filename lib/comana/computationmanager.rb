@@ -45,7 +45,6 @@ class ComputationManager
       break if finished?
       prepare_next
     end
-    puts "Done."
   end
 
   private

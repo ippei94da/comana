@@ -23,10 +23,10 @@ class QueueSubmitter < ComputationManager
   # NOTE:
   #   :d is a comana subclass not directory name to check to be calculatable.
   def initialize(opts)
-    raise InitializeError unless opts.has_key?(:d)
-    raise InitializeError unless opts.has_key?(:c)
-    raise InitializeError unless opts.has_key?(:n)
-    raise InitializeError unless opts.has_key?(:machineinfo)
+    raise InitializeError, "No :d entry in options" unless opts.has_key?(:d)
+    raise InitializeError, "No :c entry in options" unless opts.has_key?(:c)
+    raise InitializeError, "No :n entry in options" unless opts.has_key?(:n)
+    raise InitializeError, "No :machineinfo entry in options" unless opts.has_key?(:machineinfo)
 
     super(opts[:d].dir)
     @command = opts[:c]
@@ -66,12 +66,12 @@ class QueueSubmitter < ComputationManager
       "#PBS -N #{@dir}",
       "#PBS -l nodes=#{num}:ppn=1:#{@nodes},walltime=#{WALLTIME}",
       "#PBS -j oe",
-      "mkdir -p ${PBS_O_WORKDIR}",
-      "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",
-      "rsync -azq --delete #{fs}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR}",
-      "cd ${PBS_O_WORKDIR}",
-      "#{@command}",
-      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR}",
+      "mkdir -p ${PBS_O_WORKDIR} && \\",
+      "rsync -azq --delete #{fs}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR} && \\",
+      "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile && \\",
+      "cd ${PBS_O_WORKDIR} && \\",
+      "#{@command} && \\",
+      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR} && \\",
       "#rm -rf ${PBS_O_WORKDIR}",
       "mv ${PBS_O_WORKDIR} ~/.trash",
     ].join("\n")

@@ -1,11 +1,16 @@
+# Comana: COmputation MANAger
+
 Comana don't have information of output files.
 Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
 0.0.7
   Bugfix of danger to rsync large directory:
-    bin/submitqueue is removed.
-    lib/queuesubmitter.rb is modified.
+    - bin/submitqueue is removed.
+    - lib/queuesubmitter.rb is modified.
+  lib/queuesubmitter.rb is modified.
+    - finished? returns bool.
+    - content of qsub script to use "rsync" and "mv dir ~/.trash".
 
 0.0.6 release
   bin/submitqueue is add.

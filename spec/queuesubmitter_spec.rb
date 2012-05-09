@@ -90,15 +90,16 @@ describe QueueSubmitter do
       @correct = [
         "#! /bin/sh",
         "#PBS -N spec/not_started",
-        "#PBS -l nodes=4:ppn=1:Nodes,walltime=168:00:00",
+        "#PBS -l nodes=4:ppn=1:Nodes,walltime=7:00:00:00",
         "#PBS -j oe",
         "mkdir -p ${PBS_O_WORKDIR}",
         "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile",
         "rsync -azq --delete FS:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR}",
         "cd ${PBS_O_WORKDIR}",
         "command_line",
-        "#rsync -azq --delete ${PBS_O_WORKDIR}/ FS:${PBS_O_WORKDIR}",
+        "rsync -azq --delete ${PBS_O_WORKDIR}/ FS:${PBS_O_WORKDIR}",
         "#rm -rf ${PBS_O_WORKDIR}",
+        "mv ${PBS_O_WORKDIR} ~/.trash",
       ].join("\n")
     end
 
@@ -111,6 +112,44 @@ describe QueueSubmitter do
         io.rewind
         #pp io.readlines
         io.readlines.join.chomp.should == @correct
+      end
+    end
+  end
+
+  describe "#finished?" do
+    context "locked" do
+      it do
+        opts = {
+          :d => ComputationManager.new("spec/queuesubmitter/locked"),
+          :c => "command_line",
+          :n => "Nodes",
+          :s => true,
+          :machineinfo => MachineInfo.new(
+            "fileserver" => "FS",
+            "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+          )
+        }
+        @qs00 = QueueSubmitter.new(opts)
+
+        @qs00.finished?.should == true
+      end
+    end
+
+    context "unlocked" do
+      it do
+        opts = {
+          :d => ComputationManager.new("spec/queuesubmitter/unlocked"),
+          :c => "command_line",
+          :n => "Nodes",
+          :s => true,
+          :machineinfo => MachineInfo.new(
+            "fileserver" => "FS",
+            "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
+          )
+        }
+        @qs00 = QueueSubmitter.new(opts)
+
+        @qs00.finished?.should == false
       end
     end
   end

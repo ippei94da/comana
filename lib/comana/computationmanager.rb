@@ -1,10 +1,7 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
-#
-# Comana: COmputation MANAger
-#
-# This profides a framework of scientific computation.
+# This class profides a framework of scientific computation.
 # Users have to redefine some methods in subclasses for various computation.
 # 
 class ComputationManager
@@ -44,22 +41,18 @@ class ComputationManager
     end
 
     while true
-      end_status = calculate
-      raise ExecuteError unless end_status
-      if finished?
-        break
-      else
-        prepare_next
-      end
+      calculate
+      break if finished?
+      prepare_next
     end
     puts "Done."
   end
 
   private
 
-  # Redefine in subclass.
-  # Return nil if cannot execute, return false if error in executing,
-  # like Kernel.system.
+  # Redefine in subclass, e.g., 
+  #   end_status = system "command"
+  #   raise ExecuteError unless end_status
   def calculate
     raise NotImplementedError, "#{self.class}::calculate need to be redefined"
   end

@@ -127,7 +127,8 @@ end
 describe ComputationManager, "cannot execute" do
   class CalcNotExecutable    < ComputationManager
     def calculate
-      system "" # notExistCommand
+      end_status = system "" # notExistCommand
+      raise ExecuteError unless end_status
     end
 
     def finished?

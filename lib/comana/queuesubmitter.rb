@@ -9,7 +9,7 @@ require "comana/machineinfo.rb"
 #
 class QueueSubmitter < ComputationManager
   QSUB_SCRIPT = "script.qsub"
-  WALLTIME = "168:00:00"
+  WALLTIME = "7:00:00:00" # day:hour:minute:second
 
   class PrepareNextError < Exception; end
   class InitializeError < Exception; end
@@ -48,8 +48,9 @@ class QueueSubmitter < ComputationManager
     raise PrepareNextError
   end
 
+  # Return true after qsub executed.
   def finished?
-    # do nothing
+    Dir.exist? @dir + "/" +@lockdir
   end
 
   private
@@ -70,8 +71,9 @@ class QueueSubmitter < ComputationManager
       "rsync -azq --delete #{fs}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR}",
       "cd ${PBS_O_WORKDIR}",
       "#{@command}",
-      "#rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR}",
+      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR}",
       "#rm -rf ${PBS_O_WORKDIR}",
+      "mv ${PBS_O_WORKDIR} ~/.trash",
     ].join("\n")
 
     if io

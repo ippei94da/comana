@@ -1,3 +1,14 @@
 --- # vim:syntax=yaml
-"Host1":
-  "vasp": "/usr/local/calc/vasp/vasp4631serial"
+
+fileserver: Pt
+
+SeriesA:
+  economy_nodes: 1 # num of nodes for prior efficiency mode.
+  speed_nodes: 4   # num of nodes for prior speed mode.
+  vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp4631-mpich2"
+
+SeriesB:
+  economy_nodes: 1
+  speed_nodes: 8
+  vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp4631-mpich2"
+

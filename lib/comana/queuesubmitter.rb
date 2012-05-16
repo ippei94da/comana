@@ -105,7 +105,7 @@ class QueueSubmitter < ComputationManager
       "#{@command} && \\",
       "rsync -azq --delete ${PBS_O_WORKDIR}/ #{@fileserver}:${PBS_O_WORKDIR} && \\",
       "#rm -rf ${PBS_O_WORKDIR}",
-      "mv ${PBS_O_WORKDIR} ~/.trash",
+      "mv ${PBS_O_WORKDIR} ~/.trash/`date '+%Y%m%d-%H%M%S'`",
     ].join("\n")
 
     if io

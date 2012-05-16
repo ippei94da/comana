@@ -3,6 +3,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 require "comana/queuesubmitter.rb"
+require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
 
 class QueueSubmitter < ComputationManager
@@ -12,78 +13,99 @@ end
 #describe QueueSubmitter, "with chars to be escaped" do
 describe QueueSubmitter do
   describe "#initialize" do
-    context "opts not have :d" do
+    context "opts not have :directory" do
       opts = {
-        #:d => "dir_name",
-        :c => "command_line",
-        :n => "Nodes",
-        :s => true,
-        :machineinfo => MachineInfo.new(
-          "fileserver" => "FS",
-          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-        )
+        #:directory => "dir_name",
+        :command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
 
-    context "opts not have :c" do
+    context "opts not have :command" do
       opts = {
-        :d => "dir_name",
-        #:c => "command_line",
-        :n => "Nodes",
-        :s => true,
-        :machineinfo => MachineInfo.new(
-          "fileserver" => "FS",
-          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-        )
+        :directory => ComputationManager.new("dir_name"),
+        #:command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
 
-    context "opts not have :n" do
+    context "opts not have :cluster" do
       opts = {
-        :d => "dir_name",
-        :c => "command_line",
-        #:n => "Nodes",
-        :s => true,
-        :machineinfo => MachineInfo.new(
-          "fileserver" => "FS",
-          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-        )
+        :directory => ComputationManager.new("dir_name"),
+        :command => "command_line",
+        #:cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
 
-    context "opts not have :c" do
+    context "opts not have :command" do
       opts = {
-        :d => "dir_name",
-        :c => "command_line",
-        :n => "Nodes",
-        :s => true,
-        #:machineinfo => MachineInfo.new(
-        #  "fileserver" => "FS",
-        #  "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-        #)
+        :directory => ComputationManager.new("dir_name"),
+        #:command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
   end
 
+  describe "#self.parse_options" do
+    before do
+      @machine_info = MachineInfo.new(
+        {
+          "fileserver" => "FS",
+          "CLUSTER" => {
+            "speed" => 2,
+            "economy" => 1,
+          },
+        }
+      )
+    end
+
+    context "-c not indicated" do
+      ary = %w( a -n 1 )
+      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(
+        QueueSubmitter::InvalidArgumentError)}
+    end
+
+    #context "-n not indicated" do
+    #  ary = %w( a -c CLUSTER_DUMMY )
+    #  it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(MachineInfo::NoEntryError)}
+    #end
+
+    context "-n not indicated" do
+      ary = %w( a -c CLUSTER )
+      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(QueueSubmitter::InvalidArgumentError)}
+    end
+
+    context "-c and -n number indicated" do
+      ary = %w( a -c CLUSTER -n 1 )
+      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should_not raise_error}
+    end
+
+  end
+
   describe "#dump_qsub_str" do
     before do
       opts = {
-        :d => ComputationManager.new("spec/not_started"),
-        :c => "command_line",
-        :n => "Nodes",
-        :s => true,
-        :machineinfo => MachineInfo.new(
-          "fileserver" => "FS",
-          "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-        )
+        :directory => ComputationManager.new("spec/not_started"),
+        :command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
       }
       @qs00 = QueueSubmitter.new(opts)
 
@@ -120,14 +142,11 @@ describe QueueSubmitter do
     context "locked" do
       it do
         opts = {
-          :d => ComputationManager.new("spec/queuesubmitter/locked"),
-          :c => "command_line",
-          :n => "Nodes",
-          :s => true,
-          :machineinfo => MachineInfo.new(
-            "fileserver" => "FS",
-            "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-          )
+          :directory => ComputationManager.new("spec/queuesubmitter/locked"),
+          :command => "command_line",
+          :cluster => "Nodes",
+          :number  => 4,
+          :fileserver => "FS",
         }
         @qs00 = QueueSubmitter.new(opts)
 
@@ -138,14 +157,11 @@ describe QueueSubmitter do
     context "unlocked" do
       it do
         opts = {
-          :d => ComputationManager.new("spec/queuesubmitter/unlocked"),
-          :c => "command_line",
-          :n => "Nodes",
-          :s => true,
-          :machineinfo => MachineInfo.new(
-            "fileserver" => "FS",
-            "Nodes" => { "speed_nodes" => 4, "economy_nodes" => 1, }
-          )
+          :directory => ComputationManager.new("spec/queuesubmitter/unlocked"),
+          :command => "command_line",
+          :cluster => "Nodes",
+          :number  => 4,
+          :fileserver => "FS",
         }
         @qs00 = QueueSubmitter.new(opts)
 

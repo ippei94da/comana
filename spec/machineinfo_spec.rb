@@ -10,23 +10,10 @@ describe MachineInfo do
   describe "#load_file" do
     context "not exist machineinfo file" do
       DATA_FILE = "spec/machineinfo"
-      #DATA_FILE = "spec/dummy.yaml"
-      #data = {
-      #  "SeriesA" => { "data1" => "A-1", "data2" => "A-2" },
-      #  "SeriesB" => { "data1" => "B-1", "data2" => "B-2" },
-      #}
-      #io = File.open(DATA_FILE, "w")
-      #YAML.dump(data, io)
-      #io.close
-
-      #pp File.open(DATA_FILE, "r").readlines
-
       it { lambda{MachineInfo.load_file(DATA_FILE)}.should_not raise_error}
 
       mi00 = MachineInfo.load_file(DATA_FILE)
       it {mi00.get_info("SeriesA").should == { "data1" => "A-1", "data2" => "A-2" } }
-
-      #FileUtils.rm DATA_FILE
     end
 
     context "not exist machineinfo file" do

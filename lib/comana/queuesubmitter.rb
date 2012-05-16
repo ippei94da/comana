@@ -3,6 +3,7 @@
 
 require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
+require "optparse"
 
 #
 #
@@ -13,27 +14,63 @@ class QueueSubmitter < ComputationManager
 
   class PrepareNextError < Exception; end
   class InitializeError < Exception; end
+  class InvalidArgumentError < Exception; end
 
   # opts is a hash includes data belows:
-  #   :d => calculation as comana subclass.
-  #   :c => command line.
-  #   :n => name of cluster.
-  #   :s => flag for speed prior mode (option).
+  #   :command => command line.
+  #   :cluster => name of cluster.
   #   :machineinfo => MachineInfo class instance.
-  # NOTE:
-  #   :d is a comana subclass not directory name to check to be calculatable.
+  #   :directory => calculation as ComputationManager subclass.
+  #     Note that this is not directory name, to check to be calculatable.
   def initialize(opts)
-    raise InitializeError, "No :d entry in options" unless opts.has_key?(:d)
-    raise InitializeError, "No :c entry in options" unless opts.has_key?(:c)
-    raise InitializeError, "No :n entry in options" unless opts.has_key?(:n)
-    raise InitializeError, "No :machineinfo entry in options" unless opts.has_key?(:machineinfo)
+    [:directory, :command, :number,  :cluster, :fileserver].each do |symbol|
+      raise InitializeError, "No #{symbol}"  unless opts.has_key?(symbol)
+    end
 
-    super(opts[:d].dir)
-    @command = opts[:c]
-    @nodes   = opts[:n]
-    @speed   = opts[:s]
-    @machineinfo = opts[:machineinfo]
-    @lockdir = "lock_queuesubmitter"
+    super(opts[:directory].dir)
+    @command    = opts[:command]
+    @cluster    = opts[:cluster]
+    @number     = opts[:number]
+    @fileserver = opts[:fileserver]
+    @lockdir    = "lock_queuesubmitter"
+  end
+
+  def self.parse_options(ary, machineinfo)
+    ## option analysis
+    opts = {}
+    op = OptionParser.new
+    op.on("-c cluster", "--cluster" , "Cluster name."){|v| opts[:cluster] = v }
+    op.on("-n number", "--number", "Indicate node number, or key in ~/.machineinfo."){|v|
+      opts[:number] = v
+    }
+    op.parse!(ary)
+
+    unless ary.size == 1
+      raise InitializeError, "Not one directory indicated: #{ary.join(", ")}."
+    end
+
+    opts[:fileserver] = machineinfo.get_info("fileserver")
+
+    unless opts[:cluster]
+      raise InvalidArgumentError,
+      "-c option not set."
+    end
+
+    # Number of nodes: number, key string, or default value(1).
+    if opts[:number].to_i > 0
+      opts[:number] = opts[:number].to_i 
+    else
+      number = machineinfo.get_info(opts[:cluster])[opts[:number]]
+      if number
+        opts[:number] = number
+      else
+        raise InvalidArgumentError,
+        "No entry '#{opts[:number]}' in machineinfo: #{machineinfo.inspect}."
+      end
+    end
+    opts[:number] ||= 1
+
+    opts
   end
 
   def calculate
@@ -56,22 +93,17 @@ class QueueSubmitter < ComputationManager
   private
 
   def dump_qsub_str(io = nil)
-    fs = @machineinfo.get_info("fileserver") #fileserver
-    node_info = @machineinfo.get_info(@nodes)
-    num = node_info["economy_nodes"]
-    num = node_info["speed_nodes"] if @speed
-
     str = [
       "#! /bin/sh",
       "#PBS -N #{@dir}",
-      "#PBS -l nodes=#{num}:ppn=1:#{@nodes},walltime=#{WALLTIME}",
+      "#PBS -l nodes=#{@number}:ppn=1:#{@cluster},walltime=#{WALLTIME}",
       "#PBS -j oe",
       "mkdir -p ${PBS_O_WORKDIR} && \\",
-      "rsync -azq --delete #{fs}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR} && \\",
+      "rsync -azq --delete #{@fileserver}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR} && \\",
       "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile && \\",
       "cd ${PBS_O_WORKDIR} && \\",
       "#{@command} && \\",
-      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{fs}:${PBS_O_WORKDIR} && \\",
+      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{@fileserver}:${PBS_O_WORKDIR} && \\",
       "#rm -rf ${PBS_O_WORKDIR}",
       "mv ${PBS_O_WORKDIR} ~/.trash",
     ].join("\n")

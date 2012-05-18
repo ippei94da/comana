@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "comana"
-  s.version = "0.0.7"
+  s.version = "0.0.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ippei94da"]
-  s.date = "2012-05-10"
+  s.date = "2012-05-18"
   s.description = "Comana, COmputation MANAger,\n    is a software to provide a framework of\n    managing scientific computing.\n    Researchers on computing have to check calculation and\n    generate new calculation and execute, repeatedly.\n    The abstract class that this gem provide would help the work.\n  "
   s.email = "ippei94da@gmail.com"
   s.extra_rdoc_files = [
@@ -61,20 +61,20 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<rspec>, [">= 2.9.0"])
+      s.add_development_dependency(%q<rspec>, [">= 2.10.0"])
       s.add_development_dependency(%q<rdoc>, [">= 3.12"])
       s.add_development_dependency(%q<bundler>, [">= 1.1.3"])
       s.add_development_dependency(%q<jeweler>, [">= 1.8.3"])
       s.add_development_dependency(%q<simplecov>, [">= 0"])
     else
-      s.add_dependency(%q<rspec>, [">= 2.9.0"])
+      s.add_dependency(%q<rspec>, [">= 2.10.0"])
       s.add_dependency(%q<rdoc>, [">= 3.12"])
       s.add_dependency(%q<bundler>, [">= 1.1.3"])
       s.add_dependency(%q<jeweler>, [">= 1.8.3"])
       s.add_dependency(%q<simplecov>, [">= 0"])
     end
   else
-    s.add_dependency(%q<rspec>, [">= 2.9.0"])
+    s.add_dependency(%q<rspec>, [">= 2.10.0"])
     s.add_dependency(%q<rdoc>, [">= 3.12"])
     s.add_dependency(%q<bundler>, [">= 1.1.3"])
     s.add_dependency(%q<jeweler>, [">= 1.8.3"])

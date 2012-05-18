@@ -152,7 +152,7 @@ describe QueueSubmitter do
         "#PBS -j oe",
         "",
         "cd ${PBS_O_WORKDIR} && \\",
-        "command_line && \\",
+        "command_line",
       ].join("\n")
     end
 

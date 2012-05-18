@@ -4,6 +4,8 @@ Comana don't have information of output files.
 Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
+0.0.9
+
 0.0.8 release
   Changed queuesubmitter option. (long name symbol)
   Add prologue and epilogue to QueueSubmitter.

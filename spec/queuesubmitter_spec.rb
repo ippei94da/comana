@@ -7,7 +7,9 @@ require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
 
 class QueueSubmitter < ComputationManager
-  public :dump_qsub_str
+  public :dump_prologue
+  public :dump_script
+  public :dump_epilogue
 end
 
 #describe QueueSubmitter, "with chars to be escaped" do
@@ -98,7 +100,41 @@ describe QueueSubmitter do
 
   end
 
-  describe "#dump_qsub_str" do
+  describe "#dump_prologue" do
+    before do
+      opts = {
+        :directory => ComputationManager.new("spec/not_started"),
+        :command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
+      }
+      @qs00 = QueueSubmitter.new(opts)
+
+      @correct = [
+        '#! /bin/sh',
+        'LOGFILE="${PBS_O_WORKDIR}/prologue_script.log"',
+        'echo "hostname                         : `hostname`" >> $LOGFILE',
+        'echo "job id                           : $1" >> $LOGFILE',
+        'echo "job execution user name          : $2" >> $LOGFILE',
+        'echo "job execution group name         : $3" >> $LOGFILE',
+        'echo "job name                         : $4" >> $LOGFILE',
+        'echo "list of requested resource limits: $5" >> $LOGFILE',
+        'echo "job execution queue              : $6" >> $LOGFILE',
+        'echo "job account                      : $7" >> $LOGFILE',
+        'echo "PBS_O_WORKDIR                    : ${PBS_O_WORKDIR}" >> $LOGFILE',
+        'echo "nodes in pbs_nodefile            : " >> $LOGFILE',
+        'cat ${PBS_NODEFILE} >> $LOGFILE',
+        'exit 0',
+      ].join("\n")
+    end
+
+    context "speed mode" do
+      it { @qs00.dump_prologue.should == @correct}
+    end
+  end
+
+  describe "#dump_script" do
     before do
       opts = {
         :directory => ComputationManager.new("spec/not_started"),
@@ -114,29 +150,51 @@ describe QueueSubmitter do
         "#PBS -N spec/not_started",
         "#PBS -l nodes=4:ppn=1:Nodes,walltime=7:00:00:00",
         "#PBS -j oe",
-        "mkdir -p ${PBS_O_WORKDIR} && \\",
-        "rsync -azq --delete FS:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR} && \\",
-        "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile && \\",
+        "",
         "cd ${PBS_O_WORKDIR} && \\",
         "command_line && \\",
-        "rsync -azq --delete ${PBS_O_WORKDIR}/ FS:${PBS_O_WORKDIR} && \\",
-        "#rm -rf ${PBS_O_WORKDIR}",
-        "mv ${PBS_O_WORKDIR} ~/.trash",
       ].join("\n")
     end
 
     context "speed mode" do
-      it { @qs00.dump_qsub_str.should == @correct}
-
-      it do
-        io = StringIO.new
-        @qs00.dump_qsub_str(io)
-        io.rewind
-        #pp io.readlines
-        io.readlines.join.chomp.should == @correct
-      end
+      it { @qs00.dump_script.should == @correct}
     end
   end
+
+  describe "#dump_epilogue" do
+    before do
+      opts = {
+        :directory => ComputationManager.new("spec/not_started"),
+        :command => "command_line",
+        :cluster => "Nodes",
+        :number  => 4,
+        :fileserver => "FS",
+      }
+      @qs00 = QueueSubmitter.new(opts)
+
+      @correct = [
+        '#! /bin/sh',
+        'LOGFILE="${PBS_O_WORKDIR}/epilogue_script.log"',
+        'echo "job id                           : $1" >> $LOGFILE',
+        'echo "job execution user name          : $2" >> $LOGFILE',
+        'echo "job execution group name         : $3" >> $LOGFILE',
+        'echo "job name                         : $4" >> $LOGFILE',
+        'echo "session id                       : $5" >> $LOGFILE',
+        'echo "list of requested resource limits: $6" >> $LOGFILE',
+        'echo "list of resources used by job    : $7" >> $LOGFILE',
+        'echo "job execution queue              : $8" >> $LOGFILE',
+        'echo "job account                      : $9" >> $LOGFILE',
+        'echo "job exit code                    : $10" >> $LOGFILE',
+        'exit 0',
+      ].join("\n")
+    end
+
+    context "speed mode" do
+      it { @qs00.dump_epilogue.should == @correct}
+    end
+  end
+
+
 
   describe "#finished?" do
     context "locked" do

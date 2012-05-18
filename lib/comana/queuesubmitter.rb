@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
+require "fileutils"
 require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
 require "optparse"
@@ -9,7 +10,9 @@ require "optparse"
 #
 #
 class QueueSubmitter < ComputationManager
-  QSUB_SCRIPT = "script.qsub"
+  SCRIPT = "script.sh"
+  PROLOGUE = "prologue_script.sh"
+  EPILOGUE = "epilogue_script.sh"
   WALLTIME = "7:00:00:00" # day:hour:minute:second
 
   class PrepareNextError < Exception; end
@@ -74,10 +77,22 @@ class QueueSubmitter < ComputationManager
   end
 
   def calculate
-    script_path = "#{@dir}/#{QSUB_SCRIPT}"
-    File.open(script_path, "w") { |io| dump_qsub_str(io) }
+    # prologue
+    prologue_path = "#{@dir}/#{PROLOGUE}"
+    File.open(prologue_path, "w") { |io| dump_prologue(io) }
+    FileUtils.chmod(0700, prologue_path)
 
-    system("cd #{@dir}; qsub #{script_path} > #{@dir}/#{@lockdir}/stdout")
+    # epilogue
+    epilogue_path = "#{@dir}/#{EPILOGUE}"
+    File.open(epilogue_path, "w") { |io| dump_epilogue(io) }
+    FileUtils.chmod(0700, epilogue_path)
+
+    # script
+    script_path = "#{@dir}/#{SCRIPT}"
+    File.open(script_path, "w") { |io| dump_script(io) }
+
+    # run
+    system("cd #{@dir}; qsub -l prologue=#{prologue_path} -l epilogue=#{epilogue_path} #{script_path}")
   end
 
   # Raise QueueSubmitter::PrepareNextError when called.
@@ -92,20 +107,64 @@ class QueueSubmitter < ComputationManager
 
   private
 
-  def dump_qsub_str(io = nil)
+  def dump_prologue(io = nil)
+    str = [
+      '#! /bin/sh',
+      'LOGFILE="${PBS_O_WORKDIR}/prologue_script.log"',
+      'echo "hostname                         : `hostname`" >> $LOGFILE',
+      'echo "job id                           : $1" >> $LOGFILE',
+      'echo "job execution user name          : $2" >> $LOGFILE',
+      'echo "job execution group name         : $3" >> $LOGFILE',
+      'echo "job name                         : $4" >> $LOGFILE',
+      'echo "list of requested resource limits: $5" >> $LOGFILE',
+      'echo "job execution queue              : $6" >> $LOGFILE',
+      'echo "job account                      : $7" >> $LOGFILE',
+      'echo "PBS_O_WORKDIR                    : ${PBS_O_WORKDIR}" >> $LOGFILE',
+      'echo "nodes in pbs_nodefile            : " >> $LOGFILE',
+      'cat ${PBS_NODEFILE} >> $LOGFILE',
+      'exit 0',
+    ].join("\n")
+
+    if io
+      io.puts str
+    else
+      return str
+    end
+  end
+
+  def dump_script(io = nil)
     str = [
       "#! /bin/sh",
       "#PBS -N #{@dir}",
       "#PBS -l nodes=#{@number}:ppn=1:#{@cluster},walltime=#{WALLTIME}",
       "#PBS -j oe",
-      "mkdir -p ${PBS_O_WORKDIR} && \\",
-      "rsync -azq --delete #{@fileserver}:${PBS_O_WORKDIR}/ ${PBS_O_WORKDIR} && \\",
-      "cp ${PBS_NODEFILE} ${PBS_O_WORKDIR}/pbs_nodefile && \\",
+      "",
       "cd ${PBS_O_WORKDIR} && \\",
-      "#{@command} && \\",
-      "rsync -azq --delete ${PBS_O_WORKDIR}/ #{@fileserver}:${PBS_O_WORKDIR} && \\",
-      "#rm -rf ${PBS_O_WORKDIR}",
-      "mv ${PBS_O_WORKDIR} ~/.trash/`date '+%Y%m%d-%H%M%S'`",
+      "#{@command}",
+    ].join("\n")
+
+    if io
+      io.puts str
+    else
+      return str
+    end
+  end
+
+  def dump_epilogue(io = nil)
+    str = [
+      '#! /bin/sh',
+      'LOGFILE="${PBS_O_WORKDIR}/epilogue_script.log"',
+      'echo "job id                           : $1" >> $LOGFILE',
+      'echo "job execution user name          : $2" >> $LOGFILE',
+      'echo "job execution group name         : $3" >> $LOGFILE',
+      'echo "job name                         : $4" >> $LOGFILE',
+      'echo "session id                       : $5" >> $LOGFILE',
+      'echo "list of requested resource limits: $6" >> $LOGFILE',
+      'echo "list of resources used by job    : $7" >> $LOGFILE',
+      'echo "job execution queue              : $8" >> $LOGFILE',
+      'echo "job account                      : $9" >> $LOGFILE',
+      'echo "job exit code                    : $10" >> $LOGFILE',
+      'exit 0',
     ].join("\n")
 
     if io
@@ -115,5 +174,4 @@ class QueueSubmitter < ComputationManager
     end
   end
 end
-
 

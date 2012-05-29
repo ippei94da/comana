@@ -15,13 +15,12 @@ end
 #describe QueueSubmitter, "with chars to be escaped" do
 describe QueueSubmitter do
   describe "#initialize" do
-    context "opts not have :directory" do
+    context "opts not have target" do
       opts = {
-        #:directory => "dir_name",
-        :command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        #"target" => "dir_name",
+        "command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
@@ -29,23 +28,21 @@ describe QueueSubmitter do
 
     context "opts not have :command" do
       opts = {
-        :directory => ComputationManager.new("dir_name"),
-        #:command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("dir_name"),
+        #"command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
 
-    context "opts not have :cluster" do
+    context "opts not have cluster" do
       opts = {
-        :directory => ComputationManager.new("dir_name"),
-        :command => "command_line",
-        #:cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("dir_name"),
+        "command" => "command_line",
+        #"cluster" => "Nodes",
+        "number"  => 4,
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
@@ -53,61 +50,101 @@ describe QueueSubmitter do
 
     context "opts not have :command" do
       opts = {
-        :directory => ComputationManager.new("dir_name"),
-        #:command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("dir_name"),
+        #"command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       it {lambda{QueueSubmitter.new(opts)}.should raise_error(
         QueueSubmitter::InitializeError)}
     end
   end
 
-  describe "#self.parse_options" do
-    before do
-      @machine_info = MachineInfo.new(
-        {
-          "fileserver" => "FS",
-          "CLUSTER" => {
-            "speed" => 2,
-            "economy" => 1,
-          },
-        }
-      )
-    end
+  #describe "#self.correct_options" do
+  #  before do
+  #    @machine_info = MachineInfo.new(
+  #      {
+  #        "CLUSTER" => {
+  #          "speed" => 2,
+  #          "economy" => 1,
+  #          "command" => "calc_command"
+  #        },
+  #      }
+  #    )
+  #  end
 
-    context "-c not indicated" do
-      ary = %w( a -n 1 )
-      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(
-        QueueSubmitter::InvalidArgumentError)}
-    end
+  #  context "cluster not indicated" do
+  #    opts = {
+  #      "number" => 1,
+  #      #"cluster" => "CLUSTER",
+  #      "target" => "calc_dir",
+  #    }
+  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #  end
 
-    #context "-n not indicated" do
-    #  ary = %w( a -c CLUSTER_DUMMY )
-    #  it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(MachineInfo::NoEntryError)}
-    #end
+  #  context "target not indicated" do
+  #    opts = {
+  #      "number" => 1,
+  #      "cluster" => "CLUSTER",
+  #      #"target" => "calc_dir",
+  #    }
+  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #  end
 
-    context "-n not indicated" do
-      ary = %w( a -c CLUSTER )
-      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should raise_error(QueueSubmitter::InvalidArgumentError)}
-    end
+  #  context "number not indicated" do
+  #    opts = {
+  #      #"number" => 1,
+  #      "cluster" => "CLUSTER",
+  #      "target" => "calc_dir",
+  #    }
+  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #  end
 
-    context "-c and -n number indicated" do
-      ary = %w( a -c CLUSTER -n 1 )
-      it {lambda{QueueSubmitter.parse_options(ary, @machine_info)}.should_not raise_error}
-    end
+  #  context "orthodox indication" do
+  #    opts = {
+  #      "number" => 1,
+  #      "cluster" => "CLUSTER",
+  #      "target" => "calc_dir",
+  #    }
+  #    results = QueueSubmitter.correct_options(opts, @machine_info)
+  #    it {results.should == 
+  #      {
+  #        "target"  => "calc_dir",
+  #        "command" => "calc_command",
+  #        "number"  => 1,
+  #        "cluster" => "CLUSTER",
+  #      }
+  #    }
+  #  end
 
-  end
+  #  context "number indication as string in MachineInfo" do
+  #    opts = {
+  #      "cluster" => "CLUSTER",
+  #      "number" => "speed",
+  #      "target" => "calc_dir",
+  #    }
+  #    results = QueueSubmitter.correct_options(opts, @machine_info)
+  #    it {results.should == 
+  #      {
+  #        "cluster" => "CLUSTER",
+  #        "number"  => 2,
+  #        "target"  => "calc_dir",
+  #        "command" => "calc_command",
+  #      }
+  #    }
+  #  end
+  #end
 
   describe "#dump_prologue" do
     before do
       opts = {
-        :directory => ComputationManager.new("spec/not_started"),
-        :command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("spec/not_started"),
+        "command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       @qs00 = QueueSubmitter.new(opts)
 
@@ -137,11 +174,10 @@ describe QueueSubmitter do
   describe "#dump_script" do
     before do
       opts = {
-        :directory => ComputationManager.new("spec/not_started"),
-        :command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("spec/not_started"),
+        "command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       @qs00 = QueueSubmitter.new(opts)
 
@@ -164,11 +200,10 @@ describe QueueSubmitter do
   describe "#dump_epilogue" do
     before do
       opts = {
-        :directory => ComputationManager.new("spec/not_started"),
-        :command => "command_line",
-        :cluster => "Nodes",
-        :number  => 4,
-        :fileserver => "FS",
+        "target" => ComputationManager.new("spec/not_started"),
+        "command" => "command_line",
+        "cluster" => "Nodes",
+        "number"  => 4,
       }
       @qs00 = QueueSubmitter.new(opts)
 
@@ -200,11 +235,10 @@ describe QueueSubmitter do
     context "locked" do
       it do
         opts = {
-          :directory => ComputationManager.new("spec/queuesubmitter/locked"),
-          :command => "command_line",
-          :cluster => "Nodes",
-          :number  => 4,
-          :fileserver => "FS",
+          "target" => ComputationManager.new("spec/queuesubmitter/locked"),
+          "command" => "command_line",
+          "cluster" => "Nodes",
+          "number"  => 4,
         }
         @qs00 = QueueSubmitter.new(opts)
 
@@ -215,11 +249,10 @@ describe QueueSubmitter do
     context "unlocked" do
       it do
         opts = {
-          :directory => ComputationManager.new("spec/queuesubmitter/unlocked"),
-          :command => "command_line",
-          :cluster => "Nodes",
-          :number  => 4,
-          :fileserver => "FS",
+          "target" => ComputationManager.new("spec/queuesubmitter/unlocked"),
+          "command" => "command_line",
+          "cluster" => "Nodes",
+          "number"  => 4,
         }
         @qs00 = QueueSubmitter.new(opts)
 

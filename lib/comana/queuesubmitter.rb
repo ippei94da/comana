@@ -4,7 +4,6 @@
 require "fileutils"
 require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
-require "optparse"
 
 #
 #
@@ -20,61 +19,64 @@ class QueueSubmitter < ComputationManager
   class InvalidArgumentError < Exception; end
 
   # opts is a hash includes data belows:
-  #   :command => command line.
-  #   :cluster => name of cluster.
-  #   :machineinfo => MachineInfo class instance.
-  #   :directory => calculation as ComputationManager subclass.
-  #     Note that this is not directory name, to check to be calculatable.
+  #   "command" => executable command line written in script.
+  #   "cluster" => name of cluster.
+  #   "target" => calculation as ComputationManager subclass.
+  #     Note that this is not target name, to check calculatable.
   def initialize(opts)
-    [:directory, :command, :number,  :cluster, :fileserver].each do |symbol|
-      raise InitializeError, "No #{symbol}"  unless opts.has_key?(symbol)
+    #opts = self.class.correct_options(opts)
+    ["target", "command", "number", "cluster"].each do |symbol|
+      raise InitializeError, "No #{symbol} in argument 'opts'"  unless opts.has_key?(symbol)
     end
 
-    super(opts[:directory].dir)
-    @command    = opts[:command]
-    @cluster    = opts[:cluster]
-    @number     = opts[:number]
-    @fileserver = opts[:fileserver]
+    super(opts["target"].dir)
+
+    @command    = opts["command"]
+    @cluster    = opts["cluster"]
+    @number     = opts["number"]
     @lockdir    = "lock_queuesubmitter"
   end
 
-  def self.parse_options(ary, machineinfo)
-    ## option analysis
-    opts = {}
-    op = OptionParser.new
-    op.on("-c cluster", "--cluster" , "Cluster name."){|v| opts[:cluster] = v }
-    op.on("-n number", "--number", "Indicate node number, or key in ~/.machineinfo."){|v|
-      opts[:number] = v
-    }
-    op.parse!(ary)
+  ## Check and correct options given as hash, 'opts', using machineinfo.
+  ## Return hash corrected.
+  ## 'opts' must have keys of
+  ##   "number"
+  ##   "cluster"
+  ##   "target"
+  ## machineinfo is a MachineInfo class instance.
+  #def self.correct_options(opts, machineinfo)
+  #  # option analysis
+  #  ["target", "number", "cluster"].each do |symbol|
+  #    raise InitializeError, "No #{symbol} in argument 'opts'"  unless opts.has_key?(symbol)
+  #  end
 
-    unless ary.size == 1
-      raise InitializeError, "Not one directory indicated: #{ary.join(", ")}."
-    end
 
-    opts[:fileserver] = machineinfo.get_info("fileserver")
+  #  #unless ary.size == 1
+  #  #  raise InitializeError, "Not one target indicated: #{ary.join(", ")}."
+  #  #end
 
-    unless opts[:cluster]
-      raise InvalidArgumentError,
-      "-c option not set."
-    end
+  #  #unless opts["cluster"]
+  #  #  raise InvalidArgumentError,
+  #  #  "-c option not set."
+  #  #end
 
-    # Number of nodes: number, key string, or default value(1).
-    if opts[:number].to_i > 0
-      opts[:number] = opts[:number].to_i 
-    else
-      number = machineinfo.get_info(opts[:cluster])[opts[:number]]
-      if number
-        opts[:number] = number
-      else
-        raise InvalidArgumentError,
-        "No entry '#{opts[:number]}' in machineinfo: #{machineinfo.inspect}."
-      end
-    end
-    opts[:number] ||= 1
+  #  ## Number of nodes: number, key string, or default value(1).
+  #  #if opts["number"].to_i > 0
+  #  #  opts["number"] = opts["number"].to_i 
+  #  #else
+  #  #  number = machineinfo.get_info(opts["cluster"])[opts["number"]]
+  #  #  if number
+  #  #    opts["number"] = number
+  #  #  else
+  #  #    raise InvalidArgumentError,
+  #  #    "No entry '#{opts["number"]}' in machineinfo: #{machineinfo.inspect}."
+  #  #  end
+  #  #end
+  #  #opts["number"] ||= 1
 
-    opts
-  end
+
+  #  opts
+  #end
 
   def calculate
     # prologue

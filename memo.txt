@@ -5,6 +5,7 @@ Because it is difficult to define final output and to deal systematically.
 e.g., repeated calculation till convergence.
 
 0.0.9
+  Change opts specification; symbol to string
 
 0.0.8 release
   Changed queuesubmitter option. (long name symbol)

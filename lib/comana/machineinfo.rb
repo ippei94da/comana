@@ -31,5 +31,14 @@ class MachineInfo
     @data[series]
   end
 
+  #def has_info?(host)
+  #  series = host.sub(/\d*$/, "")
+  #  unless @data.has_key?(series)
+  #    raise NoEntryError,
+  #      "#{series}"
+  #  end
+  #  @data[series]
+  #end
+
 end
 

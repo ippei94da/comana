@@ -8,7 +8,7 @@ require "yaml"
 # E.g.,
 #   "Fe", "Fe00", "Fe01" are of series "Fe" and not "F"
 #
-class MachineInfo
+class Comana::MachineInfo
 
   class NoEntryError < Exception; end
 
@@ -19,7 +19,8 @@ class MachineInfo
 
   def self.load_file(data_file = (ENV["HOME"] + "/.machineinfo"))
     data = YAML.load_file(data_file)
-    MachineInfo.new data
+    #MachineInfo.new data
+    self.new data
   end
 
   def get_info(host)

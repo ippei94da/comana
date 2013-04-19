@@ -6,14 +6,14 @@ require "comana/queuesubmitter.rb"
 require "comana/computationmanager.rb"
 require "comana/machineinfo.rb"
 
-class QueueSubmitter < ComputationManager
+class Comana::QueueSubmitter # < ComputationManager
   public :dump_prologue
   public :dump_script
   public :dump_epilogue
 end
 
-#describe QueueSubmitter, "with chars to be escaped" do
-describe QueueSubmitter do
+#describe Comana::QueueSubmitter, "with chars to be escaped" do
+describe Comana::QueueSubmitter do
   describe "#initialize" do
     context "opts not have target" do
       opts = {
@@ -22,47 +22,47 @@ describe QueueSubmitter do
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
-        QueueSubmitter::InitializeError)}
+      it {lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
+        Comana::QueueSubmitter::InitializeError)}
     end
 
     context "opts not have :command" do
       opts = {
-        "target" => ComputationManager.new("dir_name"),
+        "target" => Comana::ComputationManager.new("dir_name"),
         #"command" => "command_line",
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
-        QueueSubmitter::InitializeError)}
+      it {lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
+        Comana::QueueSubmitter::InitializeError)}
     end
 
     context "opts not have cluster" do
       opts = {
-        "target" => ComputationManager.new("dir_name"),
+        "target" => Comana::ComputationManager.new("dir_name"),
         "command" => "command_line",
         #"cluster" => "Nodes",
         "number"  => 4,
       }
-      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
-        QueueSubmitter::InitializeError)}
+      it {lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
+        Comana::QueueSubmitter::InitializeError)}
     end
 
     context "opts not have :command" do
       opts = {
-        "target" => ComputationManager.new("dir_name"),
+        "target" => Comana::ComputationManager.new("dir_name"),
         #"command" => "command_line",
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      it {lambda{QueueSubmitter.new(opts)}.should raise_error(
-        QueueSubmitter::InitializeError)}
+      it {lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
+        Comana::QueueSubmitter::InitializeError)}
     end
   end
 
   #describe "#self.correct_options" do
   #  before do
-  #    @machine_info = MachineInfo.new(
+  #    @machine_info = Comana::MachineInfo.new(
   #      {
   #        "CLUSTER" => {
   #          "speed" => 2,
@@ -79,8 +79,8 @@ describe QueueSubmitter do
   #      #"cluster" => "CLUSTER",
   #      "target" => "calc_dir",
   #    }
-  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
-  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #    it {lambda{Comana::QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(Comana::QueueSubmitter::InvalidArgumentError)}
   #  end
 
   #  context "target not indicated" do
@@ -89,8 +89,8 @@ describe QueueSubmitter do
   #      "cluster" => "CLUSTER",
   #      #"target" => "calc_dir",
   #    }
-  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
-  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #    it {lambda{Comana::QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(Comana::QueueSubmitter::InvalidArgumentError)}
   #  end
 
   #  context "number not indicated" do
@@ -99,8 +99,8 @@ describe QueueSubmitter do
   #      "cluster" => "CLUSTER",
   #      "target" => "calc_dir",
   #    }
-  #    it {lambda{QueueSubmitter.correct_options(opts, @machine_info)}.should
-  #      raise_error(QueueSubmitter::InvalidArgumentError)}
+  #    it {lambda{Comana::QueueSubmitter.correct_options(opts, @machine_info)}.should
+  #      raise_error(Comana::QueueSubmitter::InvalidArgumentError)}
   #  end
 
   #  context "orthodox indication" do
@@ -109,7 +109,7 @@ describe QueueSubmitter do
   #      "cluster" => "CLUSTER",
   #      "target" => "calc_dir",
   #    }
-  #    results = QueueSubmitter.correct_options(opts, @machine_info)
+  #    results = Comana::QueueSubmitter.correct_options(opts, @machine_info)
   #    it {results.should == 
   #      {
   #        "target"  => "calc_dir",
@@ -126,7 +126,7 @@ describe QueueSubmitter do
   #      "number" => "speed",
   #      "target" => "calc_dir",
   #    }
-  #    results = QueueSubmitter.correct_options(opts, @machine_info)
+  #    results = Comana::QueueSubmitter.correct_options(opts, @machine_info)
   #    it {results.should == 
   #      {
   #        "cluster" => "CLUSTER",
@@ -141,12 +141,12 @@ describe QueueSubmitter do
   describe "#dump_prologue" do
     before do
       opts = {
-        "target" => ComputationManager.new("spec/not_started"),
+        "target" => Comana::ComputationManager.new("spec/not_started"),
         "command" => "command_line",
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      @qs00 = QueueSubmitter.new(opts)
+      @qs00 = Comana::QueueSubmitter.new(opts)
 
       @correct = [
         '#! /bin/sh',
@@ -174,12 +174,12 @@ describe QueueSubmitter do
   describe "#dump_script" do
     before do
       opts = {
-        "target" => ComputationManager.new("spec/not_started"),
+        "target" => Comana::ComputationManager.new("spec/not_started"),
         "command" => "command_line",
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      @qs00 = QueueSubmitter.new(opts)
+      @qs00 = Comana::QueueSubmitter.new(opts)
 
       @correct = [
         "#! /bin/sh",
@@ -200,12 +200,12 @@ describe QueueSubmitter do
   describe "#dump_epilogue" do
     before do
       opts = {
-        "target" => ComputationManager.new("spec/not_started"),
+        "target" => Comana::ComputationManager.new("spec/not_started"),
         "command" => "command_line",
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      @qs00 = QueueSubmitter.new(opts)
+      @qs00 = Comana::QueueSubmitter.new(opts)
 
       @correct = [
         '#! /bin/sh',
@@ -235,12 +235,12 @@ describe QueueSubmitter do
     context "locked" do
       it do
         opts = {
-          "target" => ComputationManager.new("spec/queuesubmitter/locked"),
+          "target" => Comana::ComputationManager.new("spec/queuesubmitter/locked"),
           "command" => "command_line",
           "cluster" => "Nodes",
           "number"  => 4,
         }
-        @qs00 = QueueSubmitter.new(opts)
+        @qs00 = Comana::QueueSubmitter.new(opts)
 
         @qs00.finished?.should == true
       end
@@ -249,12 +249,12 @@ describe QueueSubmitter do
     context "unlocked" do
       it do
         opts = {
-          "target" => ComputationManager.new("spec/queuesubmitter/unlocked"),
+          "target" => Comana::ComputationManager.new("spec/queuesubmitter/unlocked"),
           "command" => "command_line",
           "cluster" => "Nodes",
           "number"  => 4,
         }
-        @qs00 = QueueSubmitter.new(opts)
+        @qs00 = Comana::QueueSubmitter.new(opts)
 
         @qs00.finished?.should == false
       end

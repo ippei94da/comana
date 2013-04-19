@@ -3,12 +3,12 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 NOW = Time.now
 
-class ComputationManager
+class Comana::ComputationManager
   public :latest_modified_time, :started?
 end
 
-describe ComputationManager, "not started" do
-  class CalcYet < ComputationManager
+describe Comana::ComputationManager, "not started" do
+  class CalcYet < Comana::ComputationManager
     def finished?         ; false     ; end
   end
   before do
@@ -43,8 +43,8 @@ describe ComputationManager, "not started" do
   #end
 end
 
-describe ComputationManager, "with lock" do
-  class CalcStarted < ComputationManager
+describe Comana::ComputationManager, "with lock" do
+  class CalcStarted < Comana::ComputationManager
     def finished?         ; false     ; end
   end
 
@@ -60,8 +60,8 @@ describe ComputationManager, "with lock" do
   end
 end
 
-describe ComputationManager, "with output, without lock" do
-  class CalcStarted < ComputationManager
+describe Comana::ComputationManager, "with output, without lock" do
+  class CalcStarted < Comana::ComputationManager
     def finished?         ; false     ; end
   end
 
@@ -81,8 +81,8 @@ describe ComputationManager, "with output, without lock" do
 
 end
 
-describe ComputationManager, "terminated" do
-  class CalcTerminated < ComputationManager
+describe Comana::ComputationManager, "terminated" do
+  class CalcTerminated < Comana::ComputationManager
     def finished?         ; false     ; end
     def initialize(dir)
       @dir = dir
@@ -106,8 +106,8 @@ describe ComputationManager, "terminated" do
   end
 end
 
-describe ComputationManager, "finished" do
-  class CalcFinished    < ComputationManager
+describe Comana::ComputationManager, "finished" do
+  class CalcFinished    < Comana::ComputationManager
     def finished?         ; true      ; end
   end
 
@@ -124,8 +124,8 @@ describe ComputationManager, "finished" do
   end
 end
 
-describe ComputationManager, "cannot execute" do
-  class CalcNotExecutable    < ComputationManager
+describe Comana::ComputationManager, "cannot execute" do
+  class CalcNotExecutable    < Comana::ComputationManager
     def calculate
       end_status = system "" # notExistCommand
       raise ExecuteError unless end_status
@@ -152,7 +152,7 @@ describe ComputationManager, "cannot execute" do
   end
 
   it "should raise error" do
-    lambda{@calc.start}.should raise_error(ComputationManager::ExecuteError)
+    lambda{@calc.start}.should raise_error(Comana::ComputationManager::ExecuteError)
   end
 end
 

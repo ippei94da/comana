@@ -8,7 +8,7 @@ require "comana/machineinfo.rb"
 #
 #
 #
-class QueueSubmitter < ComputationManager
+class Comana::QueueSubmitter < Comana::ComputationManager
   SCRIPT = "script.sh"
   PROLOGUE = "prologue_script.sh"
   EPILOGUE = "epilogue_script.sh"

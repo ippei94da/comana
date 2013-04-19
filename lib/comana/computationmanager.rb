@@ -4,7 +4,7 @@
 # This class profides a framework of scientific computation.
 # Users have to redefine some methods in subclasses for various computation.
 # 
-class ComputationManager
+class Comana::ComputationManager
   class NotImplementedError < Exception; end
   class AlreadyStartedError < Exception; end
   class ExecuteError < Exception; end

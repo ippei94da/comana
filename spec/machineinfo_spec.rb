@@ -7,13 +7,6 @@ require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
 require "comana/machineinfo.rb"
 
 describe Comana::MachineInfo do
-  before do
-    @mi00 = Comana::MachineInfo.new({
-      "GroupA" => { "data1" => "A-1", "data2" => "A-2" },
-      "GroupB" => { "data1" => "B-1", "data2" => "B-2" },
-    })
-  end
-
   describe "#load_file" do
     context "not exist machineinfo file" do
       DATA_FILE = "example/machineinfo"
@@ -29,11 +22,19 @@ describe Comana::MachineInfo do
   end
 
   describe "#get_info" do
-    context "mach to hostname in data" do
-      @mi00.get_info("GroupA"). should == { "data1" => "A-1", "data2" => "A-2" }
+    before do
+      @mi00 = Comana::MachineInfo.new({
+        "GroupA" => { "data1" => "A-1", "data2" => "A-2" },
+        "GroupB" => { "data1" => "B-1", "data2" => "B-2" },
+      })
+    end
 
-      subject { @mi00.get_info("GroupB") }
-      it {should == { "data1" => "B-1", "data2" => "B-2" } }
+    context "mach to hostname in data" do
+      #@mi00.get_info("GroupA"). should == { "data1" => "A-1", "data2" => "A-2" }
+      subject { @mi00.get_info("GroupA") }
+      it {should == { "data1" => "A-1", "data2" => "A-2" } }
+      #subject { @mi00.get_info("GroupB") }
+      #it {should == { "data1" => "B-1", "data2" => "B-2" } }
     end
 
     context "Group name + integers" do

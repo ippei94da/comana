@@ -1,7 +1,0 @@
---- # vim:syntax=yaml
-"SeriesA":
-  "data1": "A-1"
-  "data2": "A-2"
-"SeriesB":
-  "data1": "B-1"
-  "data2": "B-2"

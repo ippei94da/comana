@@ -9,7 +9,7 @@ require "comana/machineinfo.rb"
 describe Comana::MachineInfo do
   describe "#load_file" do
     context "not exist machineinfo file" do
-      DATA_FILE = "spec/machineinfo"
+      DATA_FILE = "example/machineinfo"
       it { lambda{Comana::MachineInfo.load_file(DATA_FILE)}.should_not raise_error}
 
       mi00 = Comana::MachineInfo.load_file(DATA_FILE)

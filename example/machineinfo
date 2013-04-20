@@ -1,16 +1,10 @@
 --- # vim: syntax=yaml
 # cluster_name: [ num_economy, num_speed ]
 
-Ga:
-  #vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp4631-mpich2"
-  vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp5212-mpich2"
-  economy_nodes: 1
-  speed_nodes: 4
-  members: [ "Ga00", "Ga01"]
+GroupA:
+  data1:  'A-1'
+  data2:  'A-2'
 
-Ge:
-  #vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp4631-mpich2"
-  vasp: "/usr/local/calc/bin/mpiexec /usr/local/calc/bin/vasp5212-mpich2"
-  economy_nodes: 1
-  speed_nodes: 8
-  members: ["Ge00", "Ge01", "Ge02"]
+GroupB:
+  data1:  'B-1'
+  data2:  'B-2'

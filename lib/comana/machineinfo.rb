@@ -8,6 +8,7 @@ require "yaml"
 # E.g.,
 #   "Fe", "Fe00", "Fe01" are of series "Fe" and not "F"
 #
+# MEMO: This class should be renamed to be "MachineSetting"?
 class Comana::MachineInfo
 
   class NoEntryError < Exception; end

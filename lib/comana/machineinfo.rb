@@ -10,36 +10,37 @@ require "yaml"
 #
 # MEMO: This class should be renamed to be "MachineSetting"?
 class Comana::MachineInfo
+  attr_reader :groups_settings
 
   class NoEntryError < Exception; end
 
   #
-  def initialize(data)
-    @data = data
+  def initialize(groups_settings)
+    @groups_settings = groups_settings
   end
 
   def self.load_file(data_file = (ENV["HOME"] + "/.machineinfo"))
-    data = YAML.load_file(data_file)
-    #MachineInfo.new data
-    self.new data
+    groups_settings = YAML.load_file(data_file)
+    #MachineInfo.new groups_settings
+    self.new groups_settings
   end
 
   def get_info(host)
     series = host.sub(/\d*$/, "")
-    unless @data.has_key?(series)
+    unless @groups_settings.has_key?(series)
       raise NoEntryError,
         "#{series}"
     end
-    @data[series]
+    @groups_settings[series]
   end
 
   #def has_info?(host)
   #  series = host.sub(/\d*$/, "")
-  #  unless @data.has_key?(series)
+  #  unless @groups_settings.has_key?(series)
   #    raise NoEntryError,
   #      "#{series}"
   #  end
-  #  @data[series]
+  #  @groups_settings[series]
   #end
 
 end

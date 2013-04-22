@@ -7,6 +7,13 @@ describe Comana::HostSelector do
       "GroupB" => ["B00", "B01", "B02"]
     }
     @hs00 = Comana::HostSelector.new(groups_hosts)
+
+    groups_hosts = {
+      "GroupNil" => nil,
+      "GroupA" => ["A00", "A01"],
+      "GroupB" => ["B00", "B01", "B02"]
+    }
+    @hs01 = Comana::HostSelector.new(groups_hosts)
   end
 
   context 'when it has hosts' do # 'when stack is empty'
@@ -15,6 +22,10 @@ describe Comana::HostSelector do
       #end
       it 'should return all hosts' do
         @hs00.select_all.should == ["A00", "A01", "B00", "B01", "B02"]
+      end
+
+      it 'should return all hosts without nil' do
+        @hs01.select_all.should == ["A00", "A01", "B00", "B01", "B02"]
       end
     end
 

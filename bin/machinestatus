@@ -1,0 +1,70 @@
+#! /usr/bin/env ruby
+# coding: utf-8
+
+USAGE = <<HERE
+machinestatus HostA HostB
+machinestatus -g GroupA GroupB #-g option interprets as group name
+HERE
+
+require "pp"
+require "optparse"
+require "rubygems"
+require "comana"
+
+
+##Analyze options
+OPTIONS = {}
+op = OptionParser.new
+op.on("-p", "--ping"     , "Check only alive using ping"){OPTIONS[:ping]  = true}
+op.on("-a", "--all-hosts", "All hosts"                  ){OPTIONS[:all]   = true}
+op.on("-g", "--group"    , "Indicate group of hosts"    ){OPTIONS[:group] = true}
+op.parse!(ARGV)
+
+
+##Select hosts
+mi = Comana::MachineInfo.load_file
+groups_settings = {}
+mi.groups_settings.each do |key, val|
+  cluster = key
+  groups_settings[key] = val["members"]
+end
+
+hs = Comana::HostSelector.new groups_settings
+if OPTIONS[:all]
+  hosts = hs.select_all
+elsif OPTIONS[:group]
+  hosts = []
+  ARGV.each do |group|
+    hosts << hs.select_group(group)
+  end
+  hosts.flatten!
+else
+  hosts = ARGV
+end
+
+
+##Collect state information
+Thread.abort_on_exception = true
+results = {}
+threads = {}
+hosts.each do |host|
+  threads[host] = Thread.start do
+    hi = Comana::HostInspector.new host
+    results[host] = hi.ping
+  end
+end
+
+threads.each do |host, thread|
+  print "Waiting for #{host}...\n"
+  thread.join              # wait until all processes are completed
+end
+
+##Show
+results.keys.sort.each do |host|
+  if results[host]
+    state = "alive"
+  else
+    state = "dead"
+  end
+  printf("%8s: %5s\n", host, state)
+end

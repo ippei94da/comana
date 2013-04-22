@@ -15,7 +15,7 @@ class Comana::HostSelector
 
   #Return all hosts included with sorted order.
   def select_all
-    @groups_hosts.values.flatten.sort
+    @groups_hosts.values.flatten.delete_if{|v| v == nil}.sort
   end
 
   #Return member hosts in indicated group.

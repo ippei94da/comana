@@ -2,9 +2,9 @@
 # coding: utf-8
 
 require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
-require "comana/queuesubmitter.rb"
-require "comana/computationmanager.rb"
-require "comana/machineinfo.rb"
+#require "comana/queuesubmitter.rb"
+#require "comana/computationmanager.rb"
+#require "comana/clustersetting.rb"
 
 class Comana::QueueSubmitter # < ComputationManager
   public :dump_prologue
@@ -62,7 +62,7 @@ describe Comana::QueueSubmitter do
 
   #describe "#self.correct_options" do
   #  before do
-  #    @machine_info = Comana::MachineInfo.new(
+  #    @machine_info = Comana::ClusterSetting.new(
   #      {
   #        "CLUSTER" => {
   #          "speed" => 2,
@@ -120,7 +120,7 @@ describe Comana::QueueSubmitter do
   #    }
   #  end
 
-  #  context "number indication as string in MachineInfo" do
+  #  context "number indication as string in ClusterSetting" do
   #    opts = {
   #      "cluster" => "CLUSTER",
   #      "number" => "speed",

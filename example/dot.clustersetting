@@ -4,7 +4,9 @@
 GroupA:
   data1:  'A-1'
   data2:  'A-2'
+  members: ["A00", "A01"]
 
 GroupB:
   data1:  'B-1'
   data2:  'B-2'
+  members: ["B00", "B01", "B02"]

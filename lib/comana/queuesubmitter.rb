@@ -2,8 +2,8 @@
 # coding: utf-8
 
 require "fileutils"
-require "comana/computationmanager.rb"
-require "comana/machineinfo.rb"
+#require "comana/computationmanager.rb"
+#require "comana/clustersetting.rb"
 
 #
 #
@@ -37,14 +37,14 @@ class Comana::QueueSubmitter < Comana::ComputationManager
     @lockdir    = "lock_queuesubmitter"
   end
 
-  ## Check and correct options given as hash, 'opts', using machineinfo.
+  ## Check and correct options given as hash, 'opts', using clustersetting.
   ## Return hash corrected.
   ## 'opts' must have keys of
   ##   "number"
   ##   "cluster"
   ##   "target"
-  ## machineinfo is a MachineInfo class instance.
-  #def self.correct_options(opts, machineinfo)
+  ## clustersetting is a ClusterSetting class instance.
+  #def self.correct_options(opts, clustersetting)
   #  # option analysis
   #  ["target", "number", "cluster"].each do |symbol|
   #    raise InitializeError, "No #{symbol} in argument 'opts'"  unless opts.has_key?(symbol)
@@ -64,12 +64,12 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   #  #if opts["number"].to_i > 0
   #  #  opts["number"] = opts["number"].to_i 
   #  #else
-  #  #  number = machineinfo.get_info(opts["cluster"])[opts["number"]]
+  #  #  number = clustersetting.get_info(opts["cluster"])[opts["number"]]
   #  #  if number
   #  #    opts["number"] = number
   #  #  else
   #  #    raise InvalidArgumentError,
-  #  #    "No entry '#{opts["number"]}' in machineinfo: #{machineinfo.inspect}."
+  #  #    "No entry '#{opts["number"]}' in clustersetting: #{clustersetting.inspect}."
   #  #  end
   #  #end
   #  #opts["number"] ||= 1

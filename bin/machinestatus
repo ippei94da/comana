@@ -22,7 +22,7 @@ op.parse!(ARGV)
 
 
 ##Select hosts
-mi = Comana::MachineInfo.load_file
+mi = Comana::ClusterSetting.load_file
 groups_settings = {}
 mi.groups_settings.each do |key, val|
   cluster = key

@@ -27,6 +27,7 @@ class Comana::ClusterSetting
   #Return nil if not match.
   def belonged_cluster(hostname)
     @groups_settings.each do |group, settings|
+      next unless settings["members"]
       return group if settings["members"].include? hostname
     end
     return nil

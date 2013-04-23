@@ -20,6 +20,10 @@ describe Comana::ClusterSetting do
           "data2" => "B-2",
           "members" => ["B00", "B01", "B02"]
         },
+        "GroupC" => { #No member
+          "data1" => "A-1",
+          "data2" => "A-2", 
+        },
       })
     end
 
@@ -88,7 +92,7 @@ describe Comana::ClusterSetting do
 
     describe "#clusters" do
       it do
-        @mi00.clusters.should == ["GroupA", "GroupB"]
+        @mi00.clusters.should == ["GroupA", "GroupB", "GroupC"]
       end
     end
   end

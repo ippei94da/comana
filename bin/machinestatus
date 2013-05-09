@@ -42,14 +42,15 @@ else
   hosts = ARGV
 end
 
+#pp hosts;exit
 
-##Collect state information
+##Collect information
 Thread.abort_on_exception = true
 results = {}
 threads = {}
 hosts.each do |host|
   threads[host] = Thread.start do
-    hi = Comana::HostInspector.new host
+    hi = Comana::HostInspector::Ping.new host
     results[host] = hi.ping
   end
 end

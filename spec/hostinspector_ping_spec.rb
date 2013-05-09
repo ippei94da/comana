@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe Comana::HostInspector do
+describe Comana::HostInspector::Ping do
   #context 'not done ping' do # 'when stack is empty'
   #  before do
   #    @hi00 = "" #Not exist host
@@ -16,8 +16,8 @@ describe Comana::HostInspector do
 
   context 'not exist or down' do # 'when stack is empty'
     before do
-      #@hi00 = Comana::HostInspector.new("NOT_EXIST_HOST") #Not exist host
-      @hi00 = Comana::HostInspector.new("") #Not exist host
+      #@hi00 = Comana::HostInspector::Ping.new("NOT_EXIST_HOST") #Not exist host
+      @hi00 = Comana::HostInspector::Ping.new("") #Not exist host
     end
 
     #describe '#ping and #response_ping?' do # ''
@@ -30,7 +30,7 @@ describe Comana::HostInspector do
 
   context 'exist and alive' do # 'when stack is empty'
     before do
-      @hi00 = Comana::HostInspector.new("localhost")
+      @hi00 = Comana::HostInspector::Ping.new("localhost")
     end
   
     describe '#ping and #alive?' do # ''

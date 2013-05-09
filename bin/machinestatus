@@ -15,8 +15,7 @@ require "comana"
 ##Analyze options
 OPTIONS = {}
 op = OptionParser.new
-op.on("-p", "--ping"     , "Check only alive using ping"){OPTIONS[:ping]  = true}
-op.on("-a", "--all-hosts", "All hosts"                  ){OPTIONS[:all]   = true}
+op.on("-a", "--ping-alive" , "Check only alive using ping"){OPTIONS[:ping]  = true}
 op.on("-g", "--group"    , "Indicate group of hosts"    ){OPTIONS[:group] = true}
 op.parse!(ARGV)
 
@@ -30,9 +29,10 @@ mi.groups_settings.each do |key, val|
 end
 
 hs = Comana::HostSelector.new groups_settings
-if OPTIONS[:all]
-  hosts = hs.select_all
-elsif OPTIONS[:group]
+#if OPTIONS[:all]
+  #hosts = hs.select_all
+#elsif OPTIONS[:group]
+if OPTIONS[:group]
   hosts = []
   ARGV.each do |group|
     hosts << hs.select_group(group)
@@ -41,6 +41,7 @@ elsif OPTIONS[:group]
 else
   hosts = ARGV
 end
+hosts = hs.select_all if ARGV.empty?
 
 #pp hosts;exit
 

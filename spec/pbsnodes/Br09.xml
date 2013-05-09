@@ -1,0 +1,11 @@
+<Data>
+  <Node>
+    <name>Br09</name>
+    <state>down</state>
+    <np>1</np>
+    <properties>Br</properties>
+    <ntype>cluster</ntype>
+    <gpus>0</gpus>
+  </Node>
+</Data>
+

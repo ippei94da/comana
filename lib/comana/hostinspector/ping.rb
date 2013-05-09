@@ -6,9 +6,6 @@
 #
 class Comana::HostInspector::Ping
   PING_MIN_INTERVAL = 1
-  #ping: cannot flood; minimal interval, allowed for user, is 200ms
-
-  #attr_reader :alive
 
   #
   def initialize(hostname)

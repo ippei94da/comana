@@ -10,21 +10,30 @@ describe Comana::ClusterSetting do
   context "exist clustersetting file" do
     before do
       @mi00 = Comana::ClusterSetting.new({
-        "GroupA" => {
-          "data1" => "A-1",
-          "data2" => "A-2", 
-          "members" => ["A00", "A01"]
-        },
-        "GroupB" => {
-          "data1" => "B-1",
-          "data2" => "B-2",
-          "members" => ["B00", "B01", "B02"]
-        },
-        "GroupC" => { #No member
-          "data1" => "A-1",
-          "data2" => "A-2", 
-        },
+        "pbs_server" => "P00",
+        "groups" => {
+          "A" => {
+            "data1" => "A-1",
+            "data2" => "A-2", 
+            "members" => ["A00", "A01"]
+          },
+          "B" => {
+            "data1" => "B-1",
+            "data2" => "B-2",
+            "members" => ["B00", "B01", "B02"]
+          },
+          "C" => { #No member
+            "data1" => "A-1",
+            "data2" => "A-2", 
+          },
+        }
       })
+    end
+
+    describe "#load_file" do
+      it do
+        @mi00.pbs_server.should == "P00"
+      end
     end
 
     describe "#load_file" do
@@ -34,13 +43,13 @@ describe Comana::ClusterSetting do
       end
 
       mi00 = Comana::ClusterSetting.load_file(DATA_FILE)
-      mi00.groups_settings.should == {
-        "GroupA" => {
+      mi00.groups.should == {
+        "A" => {
           "data1" => "A-1",
           "data2" => "A-2", 
           "members" => ["A00", "A01"]
         },
-        "GroupB" => {
+        "B" => {
           "data1" => "B-1",
           "data2" => "B-2",
           "members" => ["B00", "B01", "B02"]
@@ -50,23 +59,23 @@ describe Comana::ClusterSetting do
 
     describe "#belonged_cluster" do
       it do
-        @mi00.belonged_cluster("A00").should == "GroupA"
-        @mi00.belonged_cluster("A01").should == "GroupA"
-        @mi00.belonged_cluster("B00").should == "GroupB"
-        @mi00.belonged_cluster("B01").should == "GroupB"
-        @mi00.belonged_cluster("B02").should == "GroupB"
+        @mi00.belonged_cluster("A00").should == "A"
+        @mi00.belonged_cluster("A01").should == "A"
+        @mi00.belonged_cluster("B00").should == "B"
+        @mi00.belonged_cluster("B01").should == "B"
+        @mi00.belonged_cluster("B02").should == "B"
         @mi00.belonged_cluster("NONE").should == nil
       end
     end
 
     describe "#settings_group" do
       it do
-        @mi00.settings_group("GroupA").should == {
+        @mi00.settings_group("A").should == {
           "data1" => "A-1",
           "data2" => "A-2", 
           "members" => ["A00", "A01"]
         }
-        @mi00.settings_group("GroupB").should == {
+        @mi00.settings_group("B").should == {
           "data1" => "B-1",
           "data2" => "B-2",
           "members" => ["B00", "B01", "B02"]
@@ -92,7 +101,7 @@ describe Comana::ClusterSetting do
 
     describe "#clusters" do
       it do
-        @mi00.clusters.should == ["GroupA", "GroupB", "GroupC"]
+        @mi00.clusters.should == ["A", "B", "C"]
       end
     end
   end
@@ -102,36 +111,6 @@ describe Comana::ClusterSetting do
       lambda{ Comana::ClusterSetting.load_file("") }.should raise_error(Errno::ENOENT)
     end
   end
-
-  #describe "#get_info" do
-  #  before do
-  #    @mi00 = Comana::ClusterSetting.new({
-  #      "GroupA" => { "data1" => "A-1", "data2" => "A-2" },
-  #      "GroupB" => { "data1" => "B-1", "data2" => "B-2" },
-  #    })
-  #  end
-
-  #  context "mach to hostname in data" do
-  #    #@mi00.get_info("GroupA"). should == { "data1" => "A-1", "data2" => "A-2" }
-  #    subject { @mi00.get_info("GroupA") }
-  #    it {should == { "data1" => "A-1", "data2" => "A-2" } }
-  #    #subject { @mi00.get_info("GroupB") }
-  #    #it {should == { "data1" => "B-1", "data2" => "B-2" } }
-  #  end
-
-  #  context "Group name + integers" do
-  #    subject { @mi00.get_info("GroupA00") }
-  #    it {should == { "data1" => "A-1", "data2" => "A-2" } }
-  #  end
-
-  #  context "Group name + alphabet" do
-  #    it {lambda{@mi00.get_info("GroupAB")}.should raise_error(Comana::ClusterSetting::NoEntryError)}
-  #  end
-
-  #  context "no entry" do
-  #    it {lambda{@mi00.get_info("")}.should raise_error(Comana::ClusterSetting::NoEntryError)}
-  #  end
-  #end
 
 end
 

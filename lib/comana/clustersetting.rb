@@ -8,25 +8,26 @@ require "yaml"
 # E.g.,
 #   "Fe", "Fe00", "Fe01" are of series "Fe" and not "F"
 class Comana::ClusterSetting
-  attr_reader :groups_settings
+  attr_reader :groups, :pbs_server
 
   class NoEntryError < Exception; end
 
   #
-  def initialize(groups_settings)
-    @groups_settings = groups_settings
+  def initialize(settings)
+    @pbs_server = settings["pbs_server"]
+    @groups = settings["groups"]
   end
 
   def self.load_file(data_file = (ENV["HOME"] + "/.clustersetting"))
-    groups_settings = YAML.load_file(data_file)
-    #ClusterSetting.new groups_settings
-    self.new groups_settings
+    settings = YAML.load_file(data_file)
+    #ClusterSetting.new settings
+    self.new settings
   end
 
   #Return belonged cluster of the host.
   #Return nil if not match.
   def belonged_cluster(hostname)
-    @groups_settings.each do |group, settings|
+    @groups.each do |group, settings|
       next unless settings["members"]
       return group if settings["members"].include? hostname
     end
@@ -35,7 +36,7 @@ class Comana::ClusterSetting
 
   #Return settings as a hash for a cluster.
   def settings_group(clustername)
-    @groups_settings[clustername]
+    @groups[clustername]
   end
 
   #Return settings as a hash for a host belonged to cluster.
@@ -45,27 +46,9 @@ class Comana::ClusterSetting
 
   #Return an array of cluster names.
   def clusters
-    @groups_settings.keys
+    @groups.keys
   end
 
-
-  #def get_info(host)
-  #  series = host.sub(/\d*$/, "")
-  #  unless @groups_settings.has_key?(series)
-  #    raise NoEntryError,
-  #      "#{series}"
-  #  end
-  #  @groups_settings[series]
-  #end
-
-  #def has_info?(host)
-  #  series = host.sub(/\d*$/, "")
-  #  unless @groups_settings.has_key?(series)
-  #    raise NoEntryError,
-  #      "#{series}"
-  #  end
-  #  @groups_settings[series]
-  #end
 
 end
 

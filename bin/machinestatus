@@ -17,23 +17,25 @@ HIGHLINE = HighLine.new
 ##Analyze options
 OPTIONS = {}
 op = OptionParser.new
-op.on("-a", "--ping-alive" , "Check only alive using ping"){OPTIONS[:ping]  = true}
+op.on("-a", "--ping-alive", "Check only alive using ping"){OPTIONS[:ping] = true}
+#op.on("-t", "--top"       , "Info from top.     "){OPTIONS[:top     ] = true}
+#op.on("-p", "--ps"        , "Info from ps.      "){OPTIONS[:ps      ] = true}
+op.on("-n", "--pbsnodes"  , "Info from pbsnodes."){OPTIONS[:pbsnodes] = true}
+#op.on("-d", "--dmesg"     , "Info from dmesg.   "){OPTIONS[:dmesg   ] = true}
+
 op.on("-g", "--group"    , "Indicate group of hosts"    ){OPTIONS[:group] = true}
 op.parse!(ARGV)
 
 
 ##Select hosts
-mi = Comana::ClusterSetting.load_file
+cs = Comana::ClusterSetting.load_file
 groups_settings = {}
-mi.groups_settings.each do |key, val|
+cs.groups_settings.each do |key, val|
   cluster = key
   groups_settings[key] = val["members"]
 end
 
 hs = Comana::HostSelector.new groups_settings
-#if OPTIONS[:all]
-  #hosts = hs.select_all
-#elsif OPTIONS[:group]
 if OPTIONS[:group]
   hosts = []
   ARGV.each do |group|
@@ -53,10 +55,12 @@ results = {}
 threads = {}
 hosts.each do |host|
   threads[host] = Thread.start do
+    results[host] = {}
     if OPTIONS[:ping]
-      ping = Comana::HostInspector::Ping.new host
-      results[host] ||= {}
-      results[host][:ping] = ping
+      results[host][:ping] = Comana::HostInspector::Ping.new host
+    end
+    if OPTIONS[:pbsnodes]
+      results[host][:ping] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
     end
   end
 end
@@ -73,6 +77,9 @@ results.keys.sort.each do |host|
     state = HIGHLINE.color("dead", :red)
     state = "alive" if results[host][:ping].alive?
     printf("%5s", state)
+  end
+  if OPTIONS[:pbsnodes]
+    print "TODO"
   end
   puts
 end

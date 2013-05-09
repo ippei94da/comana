@@ -2,7 +2,9 @@
 
 == Master (for 0.0.10)
   - Provide namespace 'Comana' for classes.
-  - Add HostnameSelector and HostnameSelector::Ping
+  - Add HostnameSelector
+  - Add HostnameSelector::Ping
+  - Add HostnameSelector::Pbsnodes
   - MachineInfo class in machineinfo.rb is renamed to be
     ClusterSetting class in clusterinfo.rb,
     And change interface.

@@ -23,7 +23,7 @@ describe Comana::HostInspector::Ping do
     #describe '#ping and #response_ping?' do # ''
     describe '#ping' do # ''
       it 'should return false' do
-        @hi00.ping.should == false
+        @hi00.alive?.should == false
       end
     end
   end
@@ -35,7 +35,7 @@ describe Comana::HostInspector::Ping do
   
     describe '#ping and #alive?' do # ''
       it 'should return true' do
-        @hi00.ping.should == true
+        @hi00.alive?.should == true
       end
     end
   end

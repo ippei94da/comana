@@ -10,7 +10,9 @@ require "pp"
 require "optparse"
 require "rubygems"
 require "comana"
+require "highline"
 
+HIGHLINE = HighLine.new
 
 ##Analyze options
 OPTIONS = {}
@@ -51,8 +53,11 @@ results = {}
 threads = {}
 hosts.each do |host|
   threads[host] = Thread.start do
-    hi = Comana::HostInspector::Ping.new host
-    results[host] = hi.ping
+    if OPTIONS[:ping]
+      ping = Comana::HostInspector::Ping.new host
+      results[host] ||= {}
+      results[host][:ping] = ping
+    end
   end
 end
 
@@ -63,10 +68,11 @@ end
 
 ##Show
 results.keys.sort.each do |host|
-  if results[host]
-    state = "alive"
-  else
-    state = "dead"
+  printf("%9s: ", host)
+  if OPTIONS[:ping]
+    state = HIGHLINE.color("dead", :red)
+    state = "alive" if results[host][:ping].alive?
+    printf("%5s", state)
   end
-  printf("%8s: %5s\n", host, state)
+  puts
 end

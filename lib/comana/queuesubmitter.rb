@@ -94,7 +94,7 @@ class Comana::QueueSubmitter < Comana::ComputationManager
     File.open(script_path, "w") { |io| dump_script(io) }
 
     # run
-    system("cd #{@dir}; qsub -l prologue=#{prologue_path} -l epilogue=#{epilogue_path} #{script_path}")
+    system("cd #{@dir}; qsub -l prologue=#{prologue_path} -l epilogue=#{epilogue_path} #{script_path} > jobid.log")
   end
 
   # Raise QueueSubmitter::PrepareNextError when called.

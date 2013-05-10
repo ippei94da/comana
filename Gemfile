@@ -12,5 +12,6 @@ group :development do
   gem "jeweler", ">= 1.8.3"
   gem "simplecov", ">= 0"
   gem "nokogiri", ">= 1.5.9"
+  gem "tefil", ">= 0.0.3"
   #gem "psych", ">= 0"
 end

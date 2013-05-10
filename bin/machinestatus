@@ -79,7 +79,34 @@ results.keys.sort.each do |host|
     printf("%5s", state)
   end
   if OPTIONS[:pbsnodes]
-    print "TODO"
+    printf("%10s ", results[host][:pbsnodes].state            )
+    printf("%10s ", results[host][:pbsnodes].np               )
+    printf("%10s ", results[host][:pbsnodes].properties       )
+    printf("%10s ", results[host][:pbsnodes].ntype            )
+    printf("%10s ", results[host][:pbsnodes].gpus             )
+    #printf("%1s  ", results[host][:pbsnodes].status["ncpu"]   )
+    #printf("%10s ", results[host][:pbsnodes].status["physmem"])
+    #printf("%4s " , results[host][:pbsnodes].status["loadave"])
+    TODO
+    printf("%4s " , results[host][:pbsnodes].status[])
+          "rectime"   => "1368099478",
+          "varattr"   => "",
+          "jobs"      => "",
+          "state"     => "free",
+          "netload"   => "1636471502",
+          "gres"      => "",
+          "loadave"   => "0.00",
+          "ncpus"     => "4",
+          "physmem"   => "12322444kb",
+          "availmem"  => "20402856kb",
+          "totmem"    => "20702856kb",
+          "idletime"  => "1389153",
+          "nusers"    => "0",
+          "nsessions" => "? 0",
+          "sessions"  => "? 0",
+          "uname"     => "Linux Br10 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64",
+          "opsys"     => "linux"
+    #results[host][:pbsnodes].status[""]
   end
   puts
 end

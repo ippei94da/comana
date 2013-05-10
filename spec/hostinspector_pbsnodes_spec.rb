@@ -18,23 +18,23 @@ describe Comana::HostInspector::Pbsnodes do
         @p00.ntype.should      == "cluster"
         #@p00.status.should     == "rectime=1368099478,varattr=,jobs=,state=free,netload=1636471502,gres=,loadave=0.00,ncpus=4,physmem=12322444kb,availmem=20402856kb,totmem=20702856kb,idletime=1389153,nusers=0,nsessions=? 0,sessions=? 0,uname=Linux Br10 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64,opsys=linux"
         @p00.status.should     == {
-          "rectime" => "1368099478",
-          "varattr" => "",
-          "jobs" => "",
-          "state" => "free",
-          "netload" => "1636471502",
-          "gres" => "",
-          "loadave" => "0.00",
-          "ncpus" => "4",
-          "physmem" => "12322444kb",
-          "availmem" => "20402856kb",
-          "totmem" => "20702856kb",
-          "idletime" => "1389153",
-          "nusers" => "0",
+          "rectime"   => "1368099478",
+          "varattr"   => "",
+          "jobs"      => "",
+          "state"     => "free",
+          "netload"   => "1636471502",
+          "gres"      => "",
+          "loadave"   => "0.00",
+          "ncpus"     => "4",
+          "physmem"   => "12322444kb",
+          "availmem"  => "20402856kb",
+          "totmem"    => "20702856kb",
+          "idletime"  => "1389153",
+          "nusers"    => "0",
           "nsessions" => "? 0",
-          "sessions" => "? 0",
-          "uname" => "Linux Br10 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64",
-          "opsys" => "linux"
+          "sessions"  => "? 0",
+          "uname"     => "Linux Br10 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64",
+          "opsys"     => "linux"
         }
         @p00.gpus.should       == "0"
       end

@@ -25,8 +25,11 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   #     Note that this is not target name, to check calculatable.
   def initialize(opts)
     #opts = self.class.correct_options(opts)
+    #pp opts
+
     ["target", "command", "number", "cluster"].each do |symbol|
-      raise InitializeError, "No #{symbol} in argument 'opts'"  unless opts.has_key?(symbol)
+      raise InitializeError, "No '#{symbol}' in argument 'opts'"  unless opts.has_key?(symbol)
+      #raise InitializeError unless opts.has_key?(symbol)
     end
 
     super(opts["target"].dir)

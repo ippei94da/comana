@@ -22,8 +22,11 @@ describe Comana::QueueSubmitter do
         "cluster" => "Nodes",
         "number"  => 4,
       }
-      it {lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
-        Comana::QueueSubmitter::InitializeError)}
+      it do
+        #$stderr.should_receive(:puts).with( "No 'target' in argument 'opts'" )
+        lambda{Comana::QueueSubmitter.new(opts)}.should raise_error(
+        Comana::QueueSubmitter::InitializeError)
+      end
     end
 
     context "opts not have :command" do

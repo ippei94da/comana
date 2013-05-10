@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
-require "nokogiri"
+#require "nokogiri"
 
 #
 #
@@ -14,6 +14,7 @@ class Comana::HostInspector::Pbsnodes
     command = "pbsnodes -x #{hostname}"
     command = "pbsnodes -x -s #{pbs_server} #{hostname}" if pbs_server
     command = "cat spec/pbsnodes/#{hostname}.xml" if $DEBUG
+    #command = "cat spec/pbsnodes/#{hostname}.xml"
     parse `#{command}`
   end
 
@@ -21,8 +22,6 @@ class Comana::HostInspector::Pbsnodes
 
   def parse(str)
     doc = Nokogiri::XML.parse(str)
-    #pp doc.methods(true).sort
-    #pp doc.xpath("/document")
     @name       = doc.xpath("/Data/Node/name"      ).children.to_s
     @state      = doc.xpath("/Data/Node/state"     ).children.to_s
     @np         = doc.xpath("/Data/Node/np"        ).children.to_s

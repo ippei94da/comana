@@ -87,6 +87,7 @@ class TC_ComputationManager < Test::Unit::TestCase
     File.utime(NOW - 2000 ,NOW - 2000, "#{calc_dir}/input_b")
     File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/output")
     File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/lock_comana")
+    File.utime(NOW - 9000 ,NOW - 9000, "#{calc_dir}/lock_comana/dummy")
 
     calc_dir = "test/locked_outputted"
     @calc_finished     = CalcFinished  .new(calc_dir)
@@ -100,11 +101,11 @@ class TC_ComputationManager < Test::Unit::TestCase
   end
 
   def test_state
-    assert_equal(:yet,     @calc00.state)
-    assert_equal(:started, @calc01.state)
-    assert_equal(:yet,     @calc02.state)
+    assert_equal(:yet,        @calc00.state)
+    assert_equal(:started,    @calc01.state)
+    assert_equal(:yet,        @calc02.state)
     assert_equal(:terminated, @calc_terminated.state)
-    assert_equal(:finished, @calc_finished.state)
+    assert_equal(:finished,   @calc_finished.state)
   end
 
   def test_latest_modified_time

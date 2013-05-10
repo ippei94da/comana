@@ -13,8 +13,8 @@ class Comana::HostInspector::Pbsnodes
     @hostname = hostname
     command = "pbsnodes -x #{hostname}"
     command = "pbsnodes -x -s #{pbs_server} #{hostname}" if pbs_server
-    command = "cat spec/pbsnodes/#{hostname}.xml" if $DEBUG
-    #command = "cat spec/pbsnodes/#{hostname}.xml"
+    command = "cat test/pbsnodes/#{hostname}.xml" if $TEST
+    #command = "cat test/pbsnodes/#{hostname}.xml"
     parse `#{command}`
   end
 

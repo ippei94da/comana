@@ -24,9 +24,6 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   #   "target" => calculation as ComputationManager subclass.
   #     Note that this is not target name, to check calculatable.
   def initialize(opts)
-    #opts = self.class.correct_options(opts)
-    #pp opts
-
     ["target", "command", "number", "cluster"].each do |symbol|
       raise InitializeError, "No '#{symbol}' in argument 'opts'"  unless opts.has_key?(symbol)
       #raise InitializeError unless opts.has_key?(symbol)
@@ -39,47 +36,6 @@ class Comana::QueueSubmitter < Comana::ComputationManager
     @number     = opts["number"]
     @lockdir    = "lock_queuesubmitter"
   end
-
-  ## Check and correct options given as hash, 'opts', using clustersetting.
-  ## Return hash corrected.
-  ## 'opts' must have keys of
-  ##   "number"
-  ##   "cluster"
-  ##   "target"
-  ## clustersetting is a ClusterSetting class instance.
-  #def self.correct_options(opts, clustersetting)
-  #  # option analysis
-  #  ["target", "number", "cluster"].each do |symbol|
-  #    raise InitializeError, "No #{symbol} in argument 'opts'"  unless opts.has_key?(symbol)
-  #  end
-
-
-  #  #unless ary.size == 1
-  #  #  raise InitializeError, "Not one target indicated: #{ary.join(", ")}."
-  #  #end
-
-  #  #unless opts["cluster"]
-  #  #  raise InvalidArgumentError,
-  #  #  "-c option not set."
-  #  #end
-
-  #  ## Number of nodes: number, key string, or default value(1).
-  #  #if opts["number"].to_i > 0
-  #  #  opts["number"] = opts["number"].to_i 
-  #  #else
-  #  #  number = clustersetting.get_info(opts["cluster"])[opts["number"]]
-  #  #  if number
-  #  #    opts["number"] = number
-  #  #  else
-  #  #    raise InvalidArgumentError,
-  #  #    "No entry '#{opts["number"]}' in clustersetting: #{clustersetting.inspect}."
-  #  #  end
-  #  #end
-  #  #opts["number"] ||= 1
-
-
-  #  opts
-  #end
 
   def calculate
     # prologue

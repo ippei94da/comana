@@ -29,13 +29,13 @@ op.parse!(ARGV)
 
 ##Select hosts
 cs = Comana::ClusterSetting.load_file
-groups_settings = {}
-cs.groups_settings.each do |key, val|
+groups = {}
+cs.groups.each do |key, val|
   cluster = key
-  groups_settings[key] = val["members"]
+  groups[key] = val["members"]
 end
 
-hs = Comana::HostSelector.new groups_settings
+hs = Comana::HostSelector.new groups
 if OPTIONS[:group]
   hosts = []
   ARGV.each do |group|
@@ -60,7 +60,7 @@ hosts.each do |host|
       results[host][:ping] = Comana::HostInspector::Ping.new host
     end
     if OPTIONS[:pbsnodes]
-      results[host][:ping] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
+      results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
     end
   end
 end
@@ -73,6 +73,7 @@ end
 ##Show
 results.keys.sort.each do |host|
   printf("%9s: ", host)
+  #pp results[host]
   if OPTIONS[:ping]
     state = HIGHLINE.color("dead", :red)
     state = "alive" if results[host][:ping].alive?
@@ -80,32 +81,28 @@ results.keys.sort.each do |host|
   end
   if OPTIONS[:pbsnodes]
     printf("%10s ", results[host][:pbsnodes].state            )
-    printf("%10s ", results[host][:pbsnodes].np               )
-    printf("%10s ", results[host][:pbsnodes].properties       )
+    printf("%1s ", results[host][:pbsnodes].np               )
+    printf("%2s ", results[host][:pbsnodes].properties       )
     printf("%10s ", results[host][:pbsnodes].ntype            )
-    printf("%10s ", results[host][:pbsnodes].gpus             )
-    #printf("%1s  ", results[host][:pbsnodes].status["ncpu"]   )
-    #printf("%10s ", results[host][:pbsnodes].status["physmem"])
-    #printf("%4s " , results[host][:pbsnodes].status["loadave"])
-    TODO
-    printf("%4s " , results[host][:pbsnodes].status[])
-          "rectime"   => "1368099478",
-          "varattr"   => "",
-          "jobs"      => "",
-          "state"     => "free",
-          "netload"   => "1636471502",
-          "gres"      => "",
-          "loadave"   => "0.00",
-          "ncpus"     => "4",
-          "physmem"   => "12322444kb",
-          "availmem"  => "20402856kb",
-          "totmem"    => "20702856kb",
-          "idletime"  => "1389153",
-          "nusers"    => "0",
-          "nsessions" => "? 0",
-          "sessions"  => "? 0",
-          "uname"     => "Linux Br10 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64",
-          "opsys"     => "linux"
+    printf("%1s ", results[host][:pbsnodes].gpus             )
+
+    printf("%10s " , results[host][:pbsnodes].status["rectime"  ])
+    printf("%2s " , results[host][:pbsnodes].status["varattr"  ])
+    printf("%4s " , results[host][:pbsnodes].status["jobs"     ][0..3])
+    printf("%4s " , results[host][:pbsnodes].status["state"    ])
+    printf("%10s " , results[host][:pbsnodes].status["netload"  ])
+    printf("%10s " , results[host][:pbsnodes].status["gres"     ])
+    printf("%10s " , results[host][:pbsnodes].status["loadave"  ])
+    printf("%10s " , results[host][:pbsnodes].status["ncpus"    ])
+    printf("%10s " , results[host][:pbsnodes].status["physmem"  ])
+    printf("%10s " , results[host][:pbsnodes].status["availmem" ])
+    printf("%10s " , results[host][:pbsnodes].status["totmem"   ])
+    printf("%10s " , results[host][:pbsnodes].status["idletime" ])
+    printf("%10s " , results[host][:pbsnodes].status["nusers"   ])
+    printf("%10s " , results[host][:pbsnodes].status["nsessions"])
+    printf("%10s " , results[host][:pbsnodes].status["sessions" ])
+    printf("%10s " , results[host][:pbsnodes].status["uname"    ])
+    printf("%10s " , results[host][:pbsnodes].status["opsys"    ])
     #results[host][:pbsnodes].status[""]
   end
   puts

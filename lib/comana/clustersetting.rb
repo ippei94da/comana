@@ -10,6 +10,8 @@ require "yaml"
 class Comana::ClusterSetting
   attr_reader :groups, :pbs_server
 
+  DEFAULT_DATA_FILE = ENV["HOME"] + "/.clustersetting"
+
   class NoEntryError < Exception; end
 
   #
@@ -18,9 +20,8 @@ class Comana::ClusterSetting
     @groups = settings["groups"]
   end
 
-  def self.load_file(data_file = (ENV["HOME"] + "/.clustersetting"))
+  def self.load_file(data_file = DEFAULT_DATA_FILE)
     settings = YAML.load_file(data_file)
-    #ClusterSetting.new settings
     self.new settings
   end
 

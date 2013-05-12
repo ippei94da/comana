@@ -1,6 +1,8 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
+require "yaml"
+
 #
 #
 #
@@ -11,6 +13,16 @@ class Comana::HostSelector
   #the keys are group name, and the value is the hostnames of the member.
   def initialize(groups_hosts)
     @groups_hosts = groups_hosts
+  end
+
+  def self.load_file(file = Comana::ClusterSetting::DEFAULT_DATA_FILE)
+    #pp Comana::ClusterSetting::DEFAULT_DATA_FILE
+    yaml = YAML.load_file(file)
+    groups_hosts = {}
+    yaml["groups"].each do |key, val|
+      groups_hosts[key] = val["members"]
+    end
+    self.new(groups_hosts)
   end
 
   #Return all hosts included with sorted order.

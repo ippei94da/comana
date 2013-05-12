@@ -3,6 +3,10 @@
 
 require "helper"
 
+class Comana::HostSelector
+  attr_reader :groups_hosts
+end
+
 class TC_HostSelector < Test::Unit::TestCase
   def setup
     groups_hosts = {
@@ -17,6 +21,14 @@ class TC_HostSelector < Test::Unit::TestCase
       "GroupB" => ["B00", "B01", "B02"]
     }
     @hs01 = Comana::HostSelector.new(groups_hosts)
+  end
+
+  def test_load_file
+    hs = Comana::HostSelector.load_file("example/dot.clustersetting")
+    assert_equal(Comana::HostSelector, hs.class)
+    #pp hs
+    #assert_equal(["A00", "A01", "B00", "B01", "B02"], hs.select_all)
+    assert_equal({"A"=>["A00", "A01"], "B"=>["B00", "B01", "B02"]}, hs.groups_hosts)
   end
 
   def test_select_all

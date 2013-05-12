@@ -1,0 +1,58 @@
+#! /usr/bin/env ruby
+# coding: utf-8
+
+USAGE = <<HERE
+  sshrootall
+    -g groups
+
+    E.g.,
+      sshrootall -c "ls -l /" HostA HostB
+        Indicate each host
+      sshrootall -c "ls -l /" -g GroupA GroupB
+        Indicate Hosts with group names
+      sshrootall -c "ls -l /"
+        Execute on all hosts when empty targets
+
+      sshrootall HostA HostB
+        Login each hosts when -c option is omitted.
+
+      sshrootall -u root -c "ls -l /"
+HERE
+
+require "optparse"
+require "pp"
+require "rubygems"
+require "comana"
+
+## option analysis
+OPTIONS = {}
+op = OptionParser.new
+op.on("-c command"    , "--command=str"    , "Command to be sent."){|v| OPTIONS[:command] = v}
+op.on("-g", "--group", "Interpret arguments as group name."){OPTIONS[:group] = true}
+op.on("-u user", "--user=str"    , "User on remote host."){|v| OPTIONS[:user] = v}
+op.parse!(ARGV)
+
+hs = Comana::HostSelector.load_file
+
+hosts = []
+if ARGV.empty?
+  hosts = hs.select_all
+elsif OPTIONS[:group]
+  ARGV.each do |tgt|
+    hosts = hs.select_group(tgt)
+  end
+else
+  hosts = ARGV
+end
+
+hosts.each do |host|
+  host = "#{OPTIONS[:user]}@#{host}" if OPTIONS[:user]
+
+  command = "ssh #{host} #{OPTIONS[:command]}"
+  #command = "ssh root@#{host} #{OPTIONS[:command]}"
+  print "#####{command}####"
+  puts
+  #puts "####Command '#{command}' is executed on #{host}.####"
+  system command
+end
+

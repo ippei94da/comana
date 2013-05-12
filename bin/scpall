@@ -2,21 +2,18 @@
 # coding: utf-8
 
 USAGE = <<HERE
-  sshall
-    -g groups
+  scpall
+    scp from from on localhost to remotehost.
 
     E.g.,
-      sshall -c "ls -l /" HostA HostB
+      scpall -f from_file -t to_file HostA HostB
         Indicate each host
-      sshall -c "ls -l /" -g GroupA GroupB
+      scpall -f from_file -t to_file GroupA GroupB
         Indicate Hosts with group names
-      sshall -c "ls -l /"
+      scpall -f from_file -t to_file
         Execute on all hosts when empty targets
 
-      sshall HostA HostB
-        Login each hosts when -c option is omitted.
-
-      sshall -u USER -c "ls -l /"
+      scpall -u USER -f from_file -t to_file
         Login as USER
 HERE
 
@@ -28,14 +25,23 @@ require "comana"
 ## option analysis
 OPTIONS = {}
 op = OptionParser.new
-op.on("-c command"    , "--command=str"    , "Command to be sent."){|v| OPTIONS[:command] = v}
+op.on("-f from_file", "--from-file=str", "Copied file in a localhost."){|v| OPTIONS[:from_file] = v}
+op.on("-t from_file", "--to-file=str", "File path in remotehosts."){|v| OPTIONS[:to_file] = v}
 op.on("-g", "--group", "Interpret arguments as group name."){OPTIONS[:group] = true}
 op.on("-u user", "--user=str"    , "User on remote host."){|v| OPTIONS[:user] = v}
 op.on("-T", "--test"    , "Test mode; not execute."){OPTIONS[:test] = true}
 op.parse!(ARGV)
 
-hs = Comana::HostSelector.load_file
+unless OPTIONS[:from_file]
+  puts "-f option is not set."
+  puts USAGE; exit
+end
+unless OPTIONS[:to_file]
+  puts "-t option is not set."
+  puts USAGE; exit
+end
 
+hs = Comana::HostSelector.load_file
 hosts = []
 if ARGV.empty?
   hosts = hs.select_all
@@ -50,7 +56,7 @@ end
 hosts.each do |host|
   host = "#{OPTIONS[:user]}@#{host}" if OPTIONS[:user]
 
-  command = "ssh #{host} #{OPTIONS[:command]}"
+  command = "scp #{OPTIONS[:from_file]} #{host}:#{OPTIONS[:to_file]}"
   print "#####{command}####"
   puts
   system command unless OPTIONS[:test]

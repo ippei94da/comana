@@ -9,5 +9,7 @@
     ClusterSetting class in clusterinfo.rb,
     And change interface.
   - Change Rspec to TestUnit
+  - Add bin/sshall
+  - Add bin/scpall
 
 == Version 0.0.9 [2012-05-29] released

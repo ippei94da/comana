@@ -1,13 +1,14 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
-#require "nokogiri"
-
+require 'rexml/document'
 #
 #
 #
 class Comana::HostInspector::Pbsnodes
   attr_reader :name, :state, :np, :properties, :ntype, :gpus, :status
+
+  class UnknownNodeError < Exception; end
 
   def initialize(hostname, pbs_server = nil)
     @hostname = hostname
@@ -15,26 +16,35 @@ class Comana::HostInspector::Pbsnodes
     command = "pbsnodes -x -s #{pbs_server} #{hostname}" if pbs_server
     command = "cat test/pbsnodes/#{hostname}.xml" if $TEST
     #command = "cat test/pbsnodes/#{hostname}.xml"
-    parse `#{command}`
+    parse `#{command} 2> /dev/null`
   end
 
   private
 
   def parse(str)
-    doc = Nokogiri::XML.parse(str)
-    @name       = doc.xpath("/Data/Node/name"      ).children.to_s
-    @state      = doc.xpath("/Data/Node/state"     ).children.to_s
-    @np         = doc.xpath("/Data/Node/np"        ).children.to_s
-    @properties = doc.xpath("/Data/Node/properties").children.to_s
-    @ntype      = doc.xpath("/Data/Node/ntype"     ).children.to_s
-    @gpus       = doc.xpath("/Data/Node/gpus"      ).children.to_s
+    doc = REXML::Document.new(str)
+    #pp doc.elements["/Data/Node/name"      ] == nil
+    if doc.elements["/Data/Node/name"      ] == nil
+      raise UnknownNodeError
+    end
+
+    @name       = doc.elements["/Data/Node/name"      ].text
+    @state      = doc.elements["/Data/Node/state"     ].text
+    @np         = doc.elements["/Data/Node/np"        ].text
+    @properties = doc.elements["/Data/Node/properties"].text
+    @ntype      = doc.elements["/Data/Node/ntype"     ].text
+    @gpus       = doc.elements["/Data/Node/gpus"      ].text
 
     #status
     @status = {}
-    doc.xpath("/Data/Node/status"    ).children.to_s.split(",").each do |equation|
-      left = equation.split("=")[0]
-      right = equation.split("=")[1].to_s
-      @status[left] = right
+    elem = doc.elements["/Data/Node/status"]
+    if elem
+      #doc.elements["/Data/Node/status"].text.to_s.split(",").each do |equation|
+      elem.text.split(",").each do |equation|
+        left = equation.split("=")[0]
+        right = equation.split("=")[1].to_s
+        @status[left] = right
+      end
     end
   end
 end

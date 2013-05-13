@@ -66,7 +66,13 @@ hosts.each do |host|
       results[host][:ping] = Comana::HostInspector::Ping.new host
     end
     if OPTIONS[:pbsnodes]
-      results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
+      begin
+        results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
+      rescue Comana::HostInspector::Pbsnodes::UnknownNodeError
+        #results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
+        results[host][:pbsnodes] = nil
+        #results[host][:pbsnodes]["status"] = {}
+      end
     end
   end
 end
@@ -122,28 +128,54 @@ results.keys.sort.each do |host|
   end
 
   if OPTIONS[:pbsnodes]
-    items << results[host][:pbsnodes].state
-    items << results[host][:pbsnodes].np                  unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].properties          unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].ntype               unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].gpus                unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["rectime"  ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["varattr"  ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["jobs"     ]                       
-    items << results[host][:pbsnodes].status["state"    ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["netload"  ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["gres"     ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["loadave"  ]                       
-    items << results[host][:pbsnodes].status["ncpus"    ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["physmem"  ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["availmem" ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["totmem"   ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["idletime" ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["nusers"   ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["nsessions"] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["sessions" ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["uname"    ] unless OPTIONS[:load] 
-    items << results[host][:pbsnodes].status["opsys"    ] unless OPTIONS[:load] 
+    if results[host][:pbsnodes]
+      items << results[host][:pbsnodes].state
+      items << results[host][:pbsnodes].np                  unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].properties          unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].ntype               unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].gpus                unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["rectime"  ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["varattr"  ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["jobs"     ]                       
+      items << results[host][:pbsnodes].status["state"    ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["netload"  ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["gres"     ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["loadave"  ]                       
+      items << results[host][:pbsnodes].status["ncpus"    ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["physmem"  ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["availmem" ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["totmem"   ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["idletime" ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["nusers"   ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["nsessions"] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["sessions" ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["uname"    ] unless OPTIONS[:load] 
+      items << results[host][:pbsnodes].status["opsys"    ] unless OPTIONS[:load] 
+    else
+      items << "pbs_unknown_host"
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << ""                       
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << ""                       
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+      items << "" unless OPTIONS[:load] 
+
+    end
   end
   data << items
 end

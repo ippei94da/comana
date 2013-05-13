@@ -11,7 +11,7 @@ group :development do
   gem "bundler", "~> 1.3.5"
   gem "jeweler", ">= 1.8.3"
   gem "simplecov", ">= 0"
-  gem "nokogiri", ">= 1.5.9"
+  #gem "nokogiri", ">= 1.5.9"
   gem "tefil", ">= 0.0.3"
   gem "psych", ">= 1.3.4"
 end

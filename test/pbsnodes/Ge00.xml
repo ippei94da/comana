@@ -1,0 +1,2 @@
+<Data><Node><name>Ge00</name><state>job-exclusive</state><np>1</np><properties>Ge</properties><ntype>cluster</ntype><jobs>0/6073.os.calc.atom</jobs><status>rectime=1368442164,varattr=,jobs=6073.os.calc.atom,state=free,netload=18920135352,gres=,loadave=0.63,ncpus=4,physmem=4046772kb,availmem=12143912kb,totmem=12427184kb,idletime=2697087,nusers=0,nsessions=? 0,sessions=? 0,uname=Linux Ge00 3.0.0-12-server #20-Ubuntu SMP Fri Oct 7 16:36:30 UTC 2011 x86_64,opsys=linux</status><gpus>0</gpus></Node></Data>
+

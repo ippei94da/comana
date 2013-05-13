@@ -1,8 +1,8 @@
 module Comana; end
 
-require "rubygems"
-gem     "nokogiri"
-require "nokogiri"
+#require "rubygems"
+#gem     "nokogiri"
+#require "nokogiri"
 
 require "comana/computationmanager.rb"
 require "comana/clustersetting.rb"

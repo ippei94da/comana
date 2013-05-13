@@ -11,26 +11,26 @@ end
 class TC_QueueSubmitter < Test::Unit::TestCase
   def setup
     opts = {
-      "target" => Comana::ComputationManager.new("test/not_started"),
-      "command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("test/not_started"),
+      :command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     @qs_notstarted = Comana::QueueSubmitter.new(opts)
 
     opts = {
-      "target" => Comana::ComputationManager.new("test/queuesubmitter/locked"),
-      "command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("test/queuesubmitter/locked"),
+      :command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     @qs_locked = Comana::QueueSubmitter.new(opts)
 
     opts = {
-      "target" => Comana::ComputationManager.new("test/queuesubmitter/unlocked"),
-      "command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("test/queuesubmitter/unlocked"),
+      :command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     @qs_unlocked = Comana::QueueSubmitter.new(opts)
   end
@@ -38,10 +38,10 @@ class TC_QueueSubmitter < Test::Unit::TestCase
   def test_initialize
     #context "opts not have target" do
     opts = {
-      #"target" => "dir_name",
-      "command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      #:target => "dir_name",
+      :command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     assert_raise(Comana::QueueSubmitter::InitializeError){
       Comana::QueueSubmitter.new(opts)
@@ -49,10 +49,10 @@ class TC_QueueSubmitter < Test::Unit::TestCase
 
     #context "opts not have :command" do
     opts = {
-      "target" => Comana::ComputationManager.new("dir_name"),
-      #"command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("dir_name"),
+      #:command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     assert_raise(Comana::QueueSubmitter::InitializeError){
       Comana::QueueSubmitter.new(opts)
@@ -60,10 +60,10 @@ class TC_QueueSubmitter < Test::Unit::TestCase
 
     #context "opts not have cluster" do
     opts = {
-      "target" => Comana::ComputationManager.new("dir_name"),
-      "command" => "command_line",
-      #"cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("dir_name"),
+      :command => "command_line",
+      #:cluster => "Nodes",
+      :number  => 4,
     }
     assert_raise(Comana::QueueSubmitter::InitializeError){
       Comana::QueueSubmitter.new(opts)
@@ -71,10 +71,10 @@ class TC_QueueSubmitter < Test::Unit::TestCase
 
     #context "opts not have :command" do
     opts = {
-      "target" => Comana::ComputationManager.new("dir_name"),
-      #"command" => "command_line",
-      "cluster" => "Nodes",
-      "number"  => 4,
+      :target => Comana::ComputationManager.new("dir_name"),
+      #:command => "command_line",
+      :cluster => "Nodes",
+      :number  => 4,
     }
     assert_raise(Comana::QueueSubmitter::InitializeError){
       Comana::QueueSubmitter.new(opts)

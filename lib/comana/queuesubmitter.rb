@@ -19,21 +19,21 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   class InvalidArgumentError < Exception; end
 
   # opts is a hash includes data belows:
-  #   "command" => executable command line written in script.
-  #   "cluster" => name of cluster.
-  #   "target" => calculation as ComputationManager subclass.
+  #   :command => executable command line written in script.
+  #   :cluster => name of cluster.
+  #   :target => calculation as ComputationManager subclass.
   #     Note that this is not target name, to check calculatable.
   def initialize(opts)
-    ["target", "command", "number", "cluster"].each do |symbol|
+    [:target, :command, :number, :cluster].each do |symbol|
       raise InitializeError, "No '#{symbol}' in argument 'opts'"  unless opts.has_key?(symbol)
       #raise InitializeError unless opts.has_key?(symbol)
     end
 
-    super(opts["target"].dir)
+    super(opts[:target].dir)
 
-    @command    = opts["command"]
-    @cluster    = opts["cluster"]
-    @number     = opts["number"]
+    @command    = opts[:command]
+    @cluster    = opts[:cluster]
+    @number     = opts[:number]
     @lockdir    = "lock_queuesubmitter"
   end
 

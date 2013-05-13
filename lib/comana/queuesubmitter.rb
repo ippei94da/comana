@@ -24,7 +24,7 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   #   :target => calculation as ComputationManager subclass.
   #     Note that this is not target name, to check calculatable.
   def initialize(opts)
-    [:target, :command, :number, :cluster].each do |symbol|
+    [:target, :command].each do |symbol|
       raise InitializeError, "No '#{symbol}' in argument 'opts'"  unless opts.has_key?(symbol)
       #raise InitializeError unless opts.has_key?(symbol)
     end
@@ -33,7 +33,7 @@ class Comana::QueueSubmitter < Comana::ComputationManager
 
     @command    = opts[:command]
     @cluster    = opts[:cluster]
-    @number     = opts[:number]
+    @num_nodes      = opts[:num_nodes]
     @lockdir    = "lock_queuesubmitter"
   end
 
@@ -94,15 +94,28 @@ class Comana::QueueSubmitter < Comana::ComputationManager
   end
 
   def dump_script(io = nil)
-    str = [
-      "#! /bin/sh",
-      "#PBS -N #{@dir}",
-      "#PBS -l nodes=#{@number}:ppn=1:#{@cluster},walltime=#{WALLTIME}",
-      "#PBS -j oe",
-      "",
-      "cd ${PBS_O_WORKDIR} && \\",
-      "#{@command}",
-    ].join("\n")
+    lines = []
+    lines << "#! /bin/sh"
+    lines << "#PBS -N #{@dir}"
+
+    if @num_nodes || @cluster
+      tmp = []
+      @num_nodes ||= 1
+      tmp << "nodes=#{@num_nodes}"
+      tmp << "ppn=1"
+      #pp @cluster
+      tmp << @cluster if @cluster
+      lines << "#PBS -l #{tmp.join(":")},walltime=#{WALLTIME}"
+    else
+      lines << "#PBS -l walltime=#{WALLTIME}"
+    end
+
+    lines << "#PBS -j oe"
+    lines << ""
+    lines << "cd ${PBS_O_WORKDIR} && \\"
+    lines << "#{@command}"
+
+    str = lines.join("\n")
 
     if io
       io.puts str

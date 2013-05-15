@@ -33,7 +33,8 @@ class Comana::QueueSubmitter < Comana::ComputationManager
 
     @command    = opts[:command]
     @cluster    = opts[:cluster]
-    @num_nodes      = opts[:num_nodes]
+    @num_nodes  = opts[:num_nodes]
+    @priority   = opts[:priority]
     @lockdir    = "lock_queuesubmitter"
   end
 
@@ -109,6 +110,8 @@ class Comana::QueueSubmitter < Comana::ComputationManager
     else
       lines << "#PBS -l walltime=#{WALLTIME}"
     end
+
+    lines << "#PBS -p #{@priority}" if @priority
 
     lines << "#PBS -j oe"
     lines << ""

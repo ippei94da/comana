@@ -162,6 +162,26 @@ class TC_QueueSubmitter < Test::Unit::TestCase
     ].join("\n")
     assert_equal(correct, qs.dump_script)
 
+    opts = {
+      :target => Comana::ComputationManager.new("test/not_started"),
+      :command => "command_line",
+      #:cluster => "Nodes",
+      #:num_nodes  => 4,
+      :priority => -10,
+    }
+    qs = Comana::QueueSubmitter.new(opts)
+    correct = [
+      "#! /bin/sh",
+      "#PBS -N test/not_started",
+      "#PBS -l walltime=7:00:00:00",
+      "#PBS -p -10",
+      "#PBS -j oe",
+      "",
+      "cd ${PBS_O_WORKDIR} && \\",
+      "command_line",
+    ].join("\n")
+    assert_equal(correct, qs.dump_script)
+
   end
 
   def test_dump_epilogue

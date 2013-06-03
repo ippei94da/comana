@@ -45,7 +45,11 @@ hs = Comana::HostSelector.new groups
 if OPTIONS[:group]
   hosts = []
   ARGV.each do |group|
-    hosts << hs.select_group(group)
+    begin
+      hosts << hs.select_group(group)
+    rescue Comana::HostSelector::NoEntryError
+      $stderr.puts "Unknown group: #{group}"
+    end
   end
   hosts.flatten!
 else

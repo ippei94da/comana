@@ -24,10 +24,6 @@ class Comana::ComputationManager
   #   :terminated    started, but long time no output
   #   :finished      started, normal ended and not need next calculation
   def state
-    #pp self
-    #pp Time.now
-    #pp latest_modified_time
-    #pp @alive_time
     return :finished   if finished?
     return :yet        unless started?
     return :terminated if (Time.now - latest_modified_time > @alive_time)

@@ -26,13 +26,13 @@ class Comana::ClusterSetting
   end
 
   #Return belonged cluster of the host.
-  #Return nil if not match.
+  #Raise NoEntryError if not match.
   def belonged_cluster(hostname)
     @groups.each do |group, settings|
       next unless settings["members"]
       return group if settings["members"].include? hostname
     end
-    return nil
+    raise NoEntryError, "#{hostname} is not in `@groups': #{@groups.inspect}"
   end
 
   #Return settings as a hash for a cluster.

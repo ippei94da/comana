@@ -62,7 +62,7 @@ class TC_ClusterSetting < Test::Unit::TestCase
     assert_equal("B" , @mi00.belonged_cluster("B00"))
     assert_equal("B" , @mi00.belonged_cluster("B01"))
     assert_equal("B" , @mi00.belonged_cluster("B02"))
-    assert_equal( nil, @mi00.belonged_cluster("NONE"))
+    assert_raise(Comana::ClusterSetting::NoEntryError){ @mi00.settings_host("NONE")}
   end
 
   def test_settings_group
@@ -104,7 +104,8 @@ class TC_ClusterSetting < Test::Unit::TestCase
       @mi00.settings_host("B00")
     )
 
-    assert_equal(nil, @mi00.settings_host("NONE"))
+    #assert_equal(nil, @mi00.settings_host("NONE"))
+    assert_raise(Comana::ClusterSetting::NoEntryError){ @mi00.settings_host("NONE")}
   end
 
   def test_clusters

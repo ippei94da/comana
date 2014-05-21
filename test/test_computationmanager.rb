@@ -9,7 +9,8 @@ require "helper"
 NOW = Time.now
 
 class Comana::ComputationManager
-  public :latest_modified_time, :started?
+  #public :latest_modified_time, :started?
+  public :started?
 end
 
 class TC_ComputationManager < Test::Unit::TestCase

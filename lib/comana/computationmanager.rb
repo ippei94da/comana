@@ -47,6 +47,15 @@ class Comana::ComputationManager
     end
   end
 
+  # Return latest modified time of files in calc dir recursively.
+  # require "find"
+  def latest_modified_time
+    tmp = Dir.glob("#{@dir}/**/*").max_by do |file|
+      File.mtime(file)
+    end
+    File.mtime(tmp)
+  end
+
   private
 
   # Redefine in subclass, e.g., 
@@ -58,15 +67,6 @@ class Comana::ComputationManager
 
   def prepare_next
     raise NotImplementedError, "#{self.class}::prepare_next need to be redefined"
-  end
-
-  # Return latest modified time of files in calc dir recursively.
-  # require "find"
-  def latest_modified_time
-    tmp = Dir.glob("#{@dir}/**/*").max_by do |file|
-      File.mtime(file)
-    end
-    File.mtime(tmp)
   end
 
   def started?

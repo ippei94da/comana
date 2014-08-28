@@ -1,6 +1,8 @@
 = comana changelog
 
-== Master (for 0.0.10)
+== Master (for 0.0.11)
+
+== Version 0.0.10 [2014-08-28] released
   - Provide namespace 'Comana' for classes.
   - Add HostnameSelector
   - Add HostnameSelector::Ping

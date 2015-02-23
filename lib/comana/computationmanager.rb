@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
-# This class profides a framework of scientific computation.
+# This class provides a framework of scientific computation.
 # Users have to redefine some methods in subclasses for various computation.
 # 
 class Comana::ComputationManager
@@ -16,6 +16,28 @@ class Comana::ComputationManager
     @dir = dir # redefine in subclass. 
     @lockdir    = "lock_comana"
     @alive_time = 3600
+  end
+
+  def self.run(args)
+    targets = args
+    targets = [ENV['PWD']] if targets.size == 0
+
+    targets.each do |dir|
+      print "#{dir}..."
+      begin
+        calc_dir = self.new(dir)
+      rescue => exc
+        puts "Not suitable directory, due of an exception: #{exc}"
+        next
+      end
+
+      begin
+          calc_dir.start
+      rescue Comana::ComputationManager::AlreadyStartedError
+        puts "Already started."
+        next
+      end
+    end
   end
 
   # Return a symbol which indicate state of calculation.
@@ -33,7 +55,7 @@ class Comana::ComputationManager
   # Execute calculation.
   # If log of ComputationManager exist, raise ComputationManager::AlreadyStartedError,
   # because the calculation has been done by other process already.
-  def start
+  def run
     begin
       Dir.mkdir "#{@dir}/#{@lockdir}"
     rescue Errno::EEXIST
@@ -46,6 +68,7 @@ class Comana::ComputationManager
       prepare_next
     end
   end
+  alias start run
 
   # Return latest modified time of files in calc dir recursively.
   # require "find"

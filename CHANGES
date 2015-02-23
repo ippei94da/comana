@@ -1,6 +1,8 @@
 = comana changelog
 
-== Master (for 0.0.11)
+== Master (for 0.1.0)
+  - Comana::ComputationManager#start() rename to run().
+  - Comana::ComputationManager.run is added.
 
 == Version 0.0.10 [2014-08-28] released
   - Provide namespace 'Comana' for classes.

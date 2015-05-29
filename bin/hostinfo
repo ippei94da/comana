@@ -19,7 +19,7 @@ op.banner = [
     "Usage: #{File.basename("#{__FILE__}")}",
 ].join("\n")
 
-#op.on("-a", "--ping-alive", "Check only alive using ping"){OPTIONS[:ping] = true}
+op.on("-a", "--ping-alive", "Ping, '--' indicates alive."){OPTIONS[:ping] = true}
 #op.on("-t", "--top"       , "Info from top.     "){OPTIONS[:top     ] = true}
 #op.on("-p", "--ps"        , "Info from ps.      "){OPTIONS[:ps      ] = true}
 #op.on("-n", "--pbsnodes"  , "Info from pbsnodes."){OPTIONS[:pbsnodes] = true}
@@ -27,6 +27,7 @@ op.banner = [
 #  OPTIONS[:pbsnodes] = true
 #  OPTIONS[:load] = true
 #}
+op.on("-u", "--update" , "Update cache"){OPTIONS[:update] = true}
 op.on("-g", "--group"  , "Indicate group of hosts"    ){OPTIONS[:group] = true}
 op.on("-q", "--quiet"  , "No output 'Wainting for...'"){OPTIONS[:quiet] = true}
 op.parse!(ARGV)
@@ -58,35 +59,54 @@ def target_hosts
   hosts
 end
 
-pp hosts = target_hosts
+def time_ago(uptime)
+  if uptime
+    second = (Time.now - uptime).to_i
+    if second >= 86400
+      result = sprintf("%2s days ago", second / 86400)
+    elsif second >= 3600
+      result = sprintf("%2s hours ago", second / 3600)
+    elsif second >= 60
+      result = sprintf("%2s min ago", second / 60)
+    else
+      result = sprintf("%2s sec ago", second)
+    end
+  else #e.g., not exist cache file
+    result = "need_update"
+  end
+  return result
+end
 
-###Collect information
-#Thread.abort_on_exception = true
-#results = {}
-#threads = {}
-#hosts.each do |host|
-#  threads[host] = Thread.start do
-#    results[host] = {}
-#    if OPTIONS[:ping]
-#      results[host][:ping] = Comana::HostInspector::Ping.new host
-#    end
-#    if OPTIONS[:pbsnodes]
-#      begin
-#        results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
-#      rescue Comana::HostInspector::Pbsnodes::UnknownNodeError
-#        #results[host][:pbsnodes] = Comana::HostInspector::Pbsnodes.new(host, cs.pbs_server)
-#        results[host][:pbsnodes] = nil
-#        #results[host][:pbsnodes]["status"] = {}
-#      end
-#    end
-#  end
-#end
-#
-#threads.each do |host, thread|
-#  print "Waiting for #{host}...\n" unless OPTIONS[:quiet]
-#  thread.join              # wait until all processes are completed
-#end
-#
+hostinspectors = target_hosts.map { |host| Comana::HostInspector.new(host) }
+
+#Collect information
+if OPTIONS[:update]
+  Thread.abort_on_exception = true
+  threads = {}
+  hostinspectors.each do |hi|
+    threads[hi] = Thread.start do
+      hi.update_ping if OPTIONS[:ping]
+    end
+  end
+  threads.each do |hi, thread|
+    print "Waiting for #{hi.hostname}...\n" unless OPTIONS[:quiet]
+    thread.join              # wait until all processes are completed
+  end
+end
+
+hostinspectors.each do |hi|
+  printf("%-10s ", hi.hostname)
+  if OPTIONS[:ping]
+    result = "NO"
+    result = "--" if hi.fetch_ping
+    printf("%2s (%11s)", result, time_ago( hi.time_updated("ping")))
+  end
+  puts
+end
+
+
+
+
 ###Titles
 #titles = []
 #titles << "host"

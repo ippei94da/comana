@@ -1,6 +1,10 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
+
+puts "machinestatus is obsoleted. use 'hostinfo'"
+exit
+
 USAGE = <<HERE
 machinestatus HostA HostB
 machinestatus -g GroupA GroupB #-g option interprets as group name
@@ -56,8 +60,6 @@ else
   hosts = ARGV
 end
 hosts = hs.select_all if ARGV.empty?
-
-#pp hosts;exit
 
 ##Collect information
 Thread.abort_on_exception = true

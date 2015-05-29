@@ -13,7 +13,7 @@ group :development do
   #gem "builder", "~> 3.2.2"
   #gem "nokogiri", ">= 1.5.9"
   #
-  gem "tefil", ">= 0.0.3"
+  gem "tefil", ">= 0.1.0"
   #gem "psych", ">= 1.3.4"
 
 end

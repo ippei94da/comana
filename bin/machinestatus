@@ -186,4 +186,5 @@ end
 
 data = data.unshift(titles)
 #pp data
-Tefil::ColumnFormer.form(data, $stdout, "|")
+t = Tefil::ColumnFormer.new
+t.form(data, $stdout, "|")

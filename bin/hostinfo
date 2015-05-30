@@ -20,6 +20,7 @@ op.banner = [
 ].join("\n")
 
 op.on("-a", "--ping-alive", "Ping, '--' indicates alive."){OPTIONS[:ping] = true}
+op.on("-c", "--cwd", "'cwd' of processes."){OPTIONS[:cwd] = true}
 #op.on("-t", "--top"       , "Info from top.     "){OPTIONS[:top     ] = true}
 #op.on("-p", "--ps"        , "Info from ps.      "){OPTIONS[:ps      ] = true}
 #op.on("-n", "--pbsnodes"  , "Info from pbsnodes."){OPTIONS[:pbsnodes] = true}
@@ -86,6 +87,7 @@ if OPTIONS[:update]
   hostinspectors.each do |hi|
     threads[hi] = Thread.start do
       hi.update_ping if OPTIONS[:ping]
+      hi.update_cwd if OPTIONS[:cwd]
     end
   end
   threads.each do |hi, thread|
@@ -95,13 +97,18 @@ if OPTIONS[:update]
 end
 
 hostinspectors.each do |hi|
-  printf("%-10s ", hi.hostname)
   if OPTIONS[:ping]
     result = "NO"
     result = "--" if hi.fetch('ping')
-    printf("%2s (%11s)", result, time_ago( hi.time_updated("ping")))
+    printf("%-10s %2s (%11s)\n",
+           hi.hostname, result, time_ago( hi.time_updated("ping")))
   end
-  puts
+  if OPTIONS[:cwd]
+    #pp hi
+    hi.fetch('cwd').each do |pid, cwd|
+      printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
+    end
+  end
 end
 
 

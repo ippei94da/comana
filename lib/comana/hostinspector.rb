@@ -37,7 +37,7 @@ class Comana::HostInspector
 
   ##cwd
   def update_cwd
-    str = `ssh #{@hostname} ls -l /proc/*/cwd 2> /dev/null`
+    str = `ssh #{@hostname} 'ls -l /proc/*/cwd'`
     #readlink コマンドが使えるかとも思ったが、シムリンク自体の名前が不明瞭になる。
     results = {}
     str.split("\n").each do |line|

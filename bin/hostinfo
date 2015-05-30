@@ -98,7 +98,7 @@ hostinspectors.each do |hi|
   printf("%-10s ", hi.hostname)
   if OPTIONS[:ping]
     result = "NO"
-    result = "--" if hi.fetch_ping
+    result = "--" if hi.fetch('ping')
     printf("%2s (%11s)", result, time_ago( hi.time_updated("ping")))
   end
   puts

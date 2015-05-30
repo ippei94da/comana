@@ -16,6 +16,8 @@ class Comana::HostInspector
     @cache_dir = "#{CACHE_DIR}/#{@hostname}"
   end
 
+
+  ##ping
   #Try ping three times.
   #Return true if at least one time responds.
   #def ping3
@@ -33,11 +35,27 @@ class Comana::HostInspector
     write_cache("ping", result)
   end
 
+  ##cwd
+  def update_cwd
+    str = `ssh #{@hostname} ls -l /proc/*/cwd 2> /dev/null`
+    #readlink コマンドが使えるかとも思ったが、シムリンク自体の名前が不明瞭になる。
+    results = {}
+    str.split("\n").each do |line|
+      items = line.split
+      pid = items[8].sub(/^\/proc\//, '').sub(/\/cwd$/, '')
+      results[pid] = items[10]
+    end
+
+    write_cache('cwd', results)
+  end
+
+
+
+  ############################################################
+  ## common
   #Return from cached ping data.
-  def fetch_ping
-    #pp load_cache('ping')
-    #exit
-    load_cache('ping')
+  def fetch(name)
+    load_cache(name)
   end
 
   def time_updated(name)

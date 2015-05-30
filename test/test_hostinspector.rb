@@ -19,31 +19,46 @@ class TC_HostInspector < Test::Unit::TestCase
   end
 
   def test_update_ping
-    FileUtils.rm_rf "#{CACHE_DIR}/#{@h00.hostname}"
-    assert_equal(false, File.exist?("#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"))
-    #sleep 60
+    ping_file = "#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"
+    #FileUtils.rm_rf "#{CACHE_DIR}/#{@h00.hostname}"
+    FileUtils.rm ping_file if File.exist?(ping_file)
+    assert_equal(false, File.exist?(ping_file))
     @h00.update_ping
-    pp "#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"
-    assert_equal(true, File.exist?("#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"))
-    assert_equal(true, YAML.load_file("#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"))
+    assert_equal(true, File.exist?(ping_file))
+    assert_equal(true, YAML.load_file(ping_file))
 
-    FileUtils.rm_rf "#{CACHE_DIR}/#{@h01.hostname}"
-    assert_equal(false, File.exist?("#{CACHE_DIR}/#{@h01.hostname}/ping.yaml"))
-    #sleep 60
+    ping_file = "#{CACHE_DIR}/#{@h01.hostname}/ping.yaml"
+    FileUtils.rm ping_file if File.exist?(ping_file)
+    assert_equal(false, File.exist?(ping_file))
     @h01.update_ping
-    pp "#{CACHE_DIR}/#{@h01.hostname}/ping.yaml"
-    assert_equal(true, File.exist?("#{CACHE_DIR}/#{@h01.hostname}/ping.yaml"))
-    assert_equal(false, YAML.load_file("#{CACHE_DIR}/#{@h01.hostname}/ping.yaml"))
+    assert_equal(true, File.exist?(ping_file))
+    assert_equal(false, YAML.load_file(ping_file))
   end
 
-  def test_fetch_ping
+  def test_update_cwd
+    cwd_file = "#{CACHE_DIR}/#{@h00.hostname}/cwd.yaml"
+    FileUtils.rm cwd_file if File.exist?(cwd_file)
+    assert_equal(false, File.exist?(cwd_file))
+    @h00.update_cwd
+    assert_equal(true, File.exist?(cwd_file))
+    assert_equal(Hash, YAML.load_file(cwd_file).class)
+
+    cwd_file = "#{CACHE_DIR}/#{@h01.hostname}/cwd.yaml"
+    FileUtils.rm cwd_file if File.exist?(cwd_file)
+    assert_equal(false, File.exist?(cwd_file))
+    @h01.update_cwd
+    assert_equal(true, File.exist?(cwd_file))
+    assert_equal(Hash, YAML.load_file(cwd_file).class)
+  end
+
+  def test_fetch
     @h00.update_ping
-    assert_equal(true, @h00.fetch_ping)
+    assert_equal(true, @h00.fetch('ping'))
 
     @h01.update_ping
-    assert_equal(false, @h01.fetch_ping)
+    assert_equal(false, @h01.fetch('ping'))
 
-    assert_equal(nil, Comana::HostInspector.new("undone_update").fetch_ping)
+    assert_equal(nil, Comana::HostInspector.new("undone_update").fetch('ping'))
 
   end
 

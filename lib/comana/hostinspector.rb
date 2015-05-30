@@ -101,6 +101,9 @@ class Comana::HostInspector
     write_cache('ps', results)
   end
 
+  #def update_cpuinfo
+  #def update_meminfo
+  #def update_lspci
 
 
   ############################################################

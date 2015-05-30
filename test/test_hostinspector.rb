@@ -15,7 +15,7 @@ class TC_HostInspector < Test::Unit::TestCase
 
   def setup
       @h00 = Comana::HostInspector.new("localhost")
-      @h01 = Comana::HostInspector.new("--not_exist_host--")
+      @h01 = Comana::HostInspector.new("__not_exist_host__")
   end
 
   def test_update_ping
@@ -43,12 +43,21 @@ class TC_HostInspector < Test::Unit::TestCase
     assert_equal(true, File.exist?(cwd_file))
     assert_equal(Hash, YAML.load_file(cwd_file).class)
 
-    cwd_file = "#{CACHE_DIR}/#{@h01.hostname}/cwd.yaml"
-    FileUtils.rm cwd_file if File.exist?(cwd_file)
-    assert_equal(false, File.exist?(cwd_file))
-    @h01.update_cwd
-    assert_equal(true, File.exist?(cwd_file))
-    assert_equal(Hash, YAML.load_file(cwd_file).class)
+    #cwd_file = "#{CACHE_DIR}/#{@h01.hostname}/cwd.yaml"
+    #FileUtils.rm cwd_file if File.exist?(cwd_file)
+    #assert_equal(false, File.exist?(cwd_file))
+    #@h01.update_cwd
+    #assert_equal(true, File.exist?(cwd_file))
+    #assert_equal(Hash, YAML.load_file(cwd_file).class)
+  end
+
+  def test_update_ps
+    ps_file = "#{CACHE_DIR}/#{@h00.hostname}/ps.yaml"
+    FileUtils.rm ps_file if File.exist?(ps_file)
+    assert_equal(false, File.exist?(ps_file))
+    @h00.update_ps
+    assert_equal(true, File.exist?(ps_file))
+    assert_equal(Hash, YAML.load_file(ps_file).class)
   end
 
   def test_fetch

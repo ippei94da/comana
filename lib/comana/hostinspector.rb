@@ -66,7 +66,6 @@ class Comana::HostInspector
   #
   def update_ps
     str = `ssh #{@hostname} 'ps auxw'`
-    #str = `ssh #{@hostname} "ps axw -o 'user pid %cpu %mem command'"`
     results = {}
     lines = str.split("\n")
     lines.shift  # titles of items
@@ -82,13 +81,6 @@ class Comana::HostInspector
       #start    = line[52..56]
       #time     = line[58..63]
       command  = line[65..-1]
-
-      #user    = line[0..7]
-      #pid     = line[9..13].to_i
-      #cpu     = line[15..18].to_f
-      #mem     = line[20..23].to_f
-      #command = line[25..-1]
-
       results[pid] = {
         "user"    => user,
         "cpu"     => cpu,
@@ -96,14 +88,46 @@ class Comana::HostInspector
         "command" => command
       }
     end
-    pp results
-
     write_cache('ps', results)
   end
 
-  #def update_cpuinfo
-  #def update_meminfo
+  # dmesg ログ形式でつらい。
+  # /proc/cpuinfo コアごとにでるのでパースめんどう。
+  # lscpu これだと思ったら、CPU MHz がずれてる。ハードウェアで想定される値ではなく、
+  # 実際の速度で書かれるらしい。
+  # 負荷の有無で値がかわる。
+  def update_cpuinfo
+    str = `ssh #{@hostname} 'cat /proc/cpuinfo'`
+    results = []
+    cur_index = 0
+    results[cur_index] = {}
+    lines = str.split("\n")
+    lines.each do |line|
+      if line =~ /^\s*$/
+        cur_index += 1
+        results[cur_index] = {}
+        next
+      end
+      key, value = line.split(/\s*:\s*/)
+      results[cur_index][key] = value
+    end
+    write_cache('cpuinfo', results)
+  end
+
+  def update_meminfo
+    str = `ssh #{@hostname} 'cat /proc/meminfo'`
+    results = {}
+    lines = str.split("\n")
+    lines.each do |line|
+      key, value = line.split(/\s*:\s*/)
+      results[key] = value
+    end
+    write_cache('meminfo', results)
+  end
+
   #def update_lspci
+
+
 
 
   ############################################################

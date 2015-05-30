@@ -13,15 +13,27 @@ require "pp"
 #HIGHLINE = HighLine.new
 #
 ##Analyze options
+COMMAND_NAME = File.basename("#{__FILE__}")
 OPTIONS = {}
 op = OptionParser.new
 op.banner = [
-    "Usage: #{File.basename("#{__FILE__}")}",
+    "Usage: #{COMMAND_NAME} [options] [hosts]",
+    "E.g.,",
+    "       #{COMMAND_NAME} -p                # for all hosts "
+    "       #{COMMAND_NAME} -p host01 host02"
+    "       #{COMMAND_NAME} -p -g host_series"
+    "       #{COMMAND_NAME} -p -u             # update cached data"
+    #"  #{COMMAND_NAME} ping",
+    #"  #{COMMAND_NAME} cwd",
+    #"  #{COMMAND_NAME} ps",
+    #"  #{COMMAND_NAME} ping",
 ].join("\n")
 
-op.on("-a", "--ping-alive", "Ping, '--' indicates alive."){OPTIONS[:ping] = true}
-op.on("-c", "--cwd", "'cwd' of processes."){OPTIONS[:cwd] = true}
-op.on("-p", "--ps"        , "Info from ps.      "){OPTIONS[:ps      ] = true}
+op.on("-a", "--ping"   , "Ping, '--' indicates alive."){OPTIONS[:ping   ] = true}
+op.on("-c", "--cwd"    , "'cwd' of processes."        ){OPTIONS[:cwd    ] = true}
+op.on("-p", "--ps"     , "Info from ps.      "        ){OPTIONS[:ps     ] = true}
+op.on("-C", "--cpuinfo", "CPU from /proc/cpuinfo."    ){OPTIONS[:cpuinfo] = true}
+op.on("-m", "--meminfo", "CPU from /proc/meminfo."    ){OPTIONS[:meminfo] = true}
 #op.on("-n", "--pbsnodes"  , "Info from pbsnodes."){OPTIONS[:pbsnodes] = true}
 #op.on("-l", "--load"      , "Pbsnodes; state, loadave."){
 #  OPTIONS[:pbsnodes] = true
@@ -88,6 +100,8 @@ if OPTIONS[:update]
       hi.update_ping if OPTIONS[:ping]
       hi.update_cwd  if OPTIONS[:cwd]
       hi.update_ps   if OPTIONS[:ps]
+      hi.update_cpuinfo   if OPTIONS[:cpuinfo]
+      hi.update_meminfo   if OPTIONS[:meminfo]
     end
   end
   threads.each do |hi, thread|
@@ -112,8 +126,19 @@ hostinspectors.each do |hi|
     hi.fetch('ps').each do |pid, ps|
       #printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
       printf("%-10s %5s\n", hi.hostname, pid)
-      pp ps
     end
+  end
+  if OPTIONS[:cpuinfo]
+    cpuinfo = hi.fetch('cpuinfo')
+    printf("%-10s %2d_cores  %s\n",
+           hi.hostname, cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
+  end
+  if OPTIONS[:meminfo]
+    meminfo = hi.fetch('meminfo')
+    pp meminfo
+    printf("%-10s %s\n",
+           hi.hostname, meminfo['MemTotal']
+          )
   end
 end
 

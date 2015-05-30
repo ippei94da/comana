@@ -60,6 +60,29 @@ class TC_HostInspector < Test::Unit::TestCase
     assert_equal(Hash, YAML.load_file(ps_file).class)
   end
 
+  def test_update_cpuinfo
+    cpuinfo_file = "#{CACHE_DIR}/#{@h00.hostname}/cpuinfo.yaml"
+    FileUtils.rm cpuinfo_file if File.exist?(cpuinfo_file)
+    assert_equal(false, File.exist?(cpuinfo_file))
+    @h00.update_cpuinfo
+    assert_equal(true, File.exist?(cpuinfo_file))
+
+    results = YAML.load_file(cpuinfo_file)
+    assert_equal(Array, results.class)
+    assert_equal(Hash, results[0].class)
+  end
+
+  def test_update_meminfo
+    meminfo_file = "#{CACHE_DIR}/#{@h00.hostname}/meminfo.yaml"
+    FileUtils.rm meminfo_file if File.exist?(meminfo_file)
+    assert_equal(false, File.exist?(meminfo_file))
+    @h00.update_meminfo
+    assert_equal(true, File.exist?(meminfo_file))
+
+    results = YAML.load_file(meminfo_file)
+    assert_equal(Hash, results.class)
+  end
+
   def test_fetch
     @h00.update_ping
     assert_equal(true, @h00.fetch('ping'))

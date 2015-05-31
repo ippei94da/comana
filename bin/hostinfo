@@ -5,47 +5,54 @@ require "comana"
 require "optparse"
 require "pp"
 
-
-
-#require "rubygems"
-#require "highline"
-#require "tefil"
-#HIGHLINE = HighLine.new
-#
 ##Analyze options
 COMMAND_NAME = File.basename("#{__FILE__}")
 OPTIONS = {}
 op = OptionParser.new
-op.banner = [
-    "Usage: #{COMMAND_NAME} [options] [hosts]",
-    "E.g.,",
-    "       #{COMMAND_NAME} -p                # for all hosts ",
-    "       #{COMMAND_NAME} -p host01 host02",
-    "       #{COMMAND_NAME} -p -g host_series",
-    "       #{COMMAND_NAME} -p -u             # update cached data",
-    #"  #{COMMAND_NAME} ping",
-    #"  #{COMMAND_NAME} cwd",
-    #"  #{COMMAND_NAME} ps",
-    #"  #{COMMAND_NAME} ping",
-].join("\n")
+op.banner = <<HERE
+Usage: #{COMMAND_NAME} subcommand [options] [hosts]
+Subcommands:
+  ping    # Ping: o and x indicate OK and N/A, respectively.
+  cwd     # cwd of processes.
+  ps      # Info from ps.
+  cpuinfo # CPU from /proc/cpuinfo.
+  meminfo # CPU from /proc/meminfo.
+  load    # the highest process
+For example,
+  #{COMMAND_NAME} ping                # for all hosts 
+  #{COMMAND_NAME} ping host01 host02
+  #{COMMAND_NAME} ping -g host_series
+  #{COMMAND_NAME} ping -u             # update cached data
+HERE
 
-op.on("-a", "--ping"   , "Ping, '--' indicates alive."){OPTIONS[:ping   ] = true}
-op.on("-c", "--cwd"    , "'cwd' of processes."        ){OPTIONS[:cwd    ] = true}
-op.on("-p", "--ps"     , "Info from ps.      "        ){OPTIONS[:ps     ] = true}
-op.on("-C", "--cpuinfo", "CPU from /proc/cpuinfo."    ){OPTIONS[:cpuinfo] = true}
-op.on("-m", "--meminfo", "CPU from /proc/meminfo."    ){OPTIONS[:meminfo] = true}
-#op.on("-n", "--pbsnodes"  , "Info from pbsnodes."){OPTIONS[:pbsnodes] = true}
-#op.on("-l", "--load"      , "Pbsnodes; state, loadave."){
-#  OPTIONS[:pbsnodes] = true
-#  OPTIONS[:load] = true
-#}
 op.on("-u", "--update" , "Update cache"){OPTIONS[:update] = true}
 op.on("-g", "--group"  , "Indicate group of hosts"    ){OPTIONS[:group] = true}
 op.on("-q", "--quiet"  , "No output 'Wainting for...'"){OPTIONS[:quiet] = true}
 op.parse!(ARGV)
 
+## Analyze subcommand
+subcommand = ARGV.shift
+requirement = {}
+case subcommand
+when "ping"
+  requirement[:ping] = true
+when "cwd"
+  requirement[:cwd] = true
+when "ps"
+  requirement[:ps] = true
+when "cpuinfo"
+  requirement[:cpuinfo] = true
+when "meminfo"
+  requirement[:meminfo] = true
+when "load"
+  requirement[:ps] = true
+  requirement[:cwd] = true
+else
+  puts op.help
+  exit
+end
 
-##Select hosts
+## Return selected hosts
 def target_hosts
   cs = Comana::ClusterSetting.load_file
   groups = {}
@@ -79,9 +86,9 @@ def time_ago(uptime)
     elsif second >= 3600
       result = sprintf("%2s hours ago", second / 3600)
     elsif second >= 60
-      result = sprintf("%2s min ago", second / 60)
+      result = sprintf("%2s min  ago", second / 60)
     else
-      result = sprintf("%2s sec ago", second)
+      result = sprintf("%2s sec  ago", second)
     end
   else #e.g., not exist cache file
     result = "need_update"
@@ -89,19 +96,18 @@ def time_ago(uptime)
   return result
 end
 
+## Collect information
 hostinspectors = target_hosts.map { |host| Comana::HostInspector.new(host) }
-
-#Collect information
 if OPTIONS[:update]
   Thread.abort_on_exception = true
   threads = {}
   hostinspectors.each do |hi|
     threads[hi] = Thread.start do
-      hi.update_ping if OPTIONS[:ping]
-      hi.update_cwd  if OPTIONS[:cwd]
-      hi.update_ps   if OPTIONS[:ps]
-      hi.update_cpuinfo   if OPTIONS[:cpuinfo]
-      hi.update_meminfo   if OPTIONS[:meminfo]
+      hi.update_ping if requirement[:ping]
+      hi.update_cwd  if requirement[:cwd]
+      hi.update_ps   if requirement[:ps]
+      hi.update_cpuinfo   if requirement[:cpuinfo]
+      hi.update_meminfo   if requirement[:meminfo]
     end
   end
   threads.each do |hi, thread|
@@ -110,140 +116,57 @@ if OPTIONS[:update]
   end
 end
 
+## Output
 hostinspectors.each do |hi|
-  if OPTIONS[:ping]
-    result = "NO"
-    result = "--" if hi.fetch('ping')
-    printf("%-10s %2s (%11s)\n",
-           hi.hostname, result, time_ago( hi.time_updated("ping")))
-  end
-  if OPTIONS[:cwd]
-    hi.fetch('cwd').each do |pid, cwd|
-      printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
+  begin
+    case subcommand
+    when "ping"
+      result = "x"
+      result = "o" if hi.fetch('ping')
+      printf("%-10s %1s (%11s)\n",
+             hi.hostname, result, time_ago( hi.time_updated("ping")))
+    when "cwd"
+      hi.fetch('cwd').each do |pid, cwd|
+        printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
+      end
+    when "ps"
+      hi.fetch('ps').each do |pid, ps|
+        #printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
+        printf("%-10s %5s\n", hi.hostname, pid)
+      end
+    when "cpuinfo"
+      cpuinfo = hi.fetch('cpuinfo')
+      if cpuinfo[0]["model name"]
+        printf("%-10s %2d_cores  %s\n",
+               hi.hostname, cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
+      else
+        printf("%-10s not_obtained\n", hi.hostname)
+      end
+    when "meminfo"
+      meminfo = hi.fetch('meminfo')
+      printf("%-10s %s\n",
+             hi.hostname, meminfo['MemTotal']
+            )
+    when "load"
+      #printf("%10s %5s %8s %5s %5s %20s %s\n",
+      #        'host', 'pid', 'user', 'cpu', 'mem', 
+      #        'command', 'cwd')
+
+      ps      = hi.fetch("ps")
+      cwd     = hi.fetch("cwd")
+
+      #pp ps
+      #sum =0.0
+      pid, process = ps.max_by {|key, val| val['cpu'].to_f}
+      command = File.basename(process['command'].split[0])
+      printf("%-10s %5s %8s %5.1f %5.1f %20s %s",
+             hi.hostname, pid, process['user'], process['cpu'], process['mem'],
+            command, cwd[pid])
+
     end
-  end
-  if OPTIONS[:ps]
-    hi.fetch('ps').each do |pid, ps|
-      #printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
-      printf("%-10s %5s\n", hi.hostname, pid)
-    end
-  end
-  if OPTIONS[:cpuinfo]
-    cpuinfo = hi.fetch('cpuinfo')
-    printf("%-10s %2d_cores  %s\n",
-           hi.hostname, cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
-  end
-  if OPTIONS[:meminfo]
-    meminfo = hi.fetch('meminfo')
-    pp meminfo
-    printf("%-10s %s\n",
-           hi.hostname, meminfo['MemTotal']
-          )
+  rescue Comana::HostInspector::NoUpdateFile
+    puts "#{hi.hostname} need update."
+  rescue NoMethodError # 主にデータを取れなかった時用
+    puts "#{hi.hostname} ------------"
   end
 end
-
-
-
-
-###Titles
-#titles = []
-#titles << "host"
-#if OPTIONS[:ping]
-#  titles << "ping"
-#end
-#if OPTIONS[:pbsnodes]
-#  titles << "state"
-#  titles << "np"          unless OPTIONS[:load]
-#  titles << "properties"  unless OPTIONS[:load]
-#  titles << "ntype"       unless OPTIONS[:load]
-#  titles << "gpus"        unless OPTIONS[:load]
-#  titles << "rectime"     unless OPTIONS[:load]
-#  titles << "varattr"     unless OPTIONS[:load]
-#  titles << "jobs"
-#  titles << "state"       unless OPTIONS[:load]
-#  titles << "netload"     unless OPTIONS[:load]
-#  titles << "gres"        unless OPTIONS[:load]
-#  titles << "loadave"
-#  titles << "ncpus"       unless OPTIONS[:load]
-#  titles << "physmem"     unless OPTIONS[:load]
-#  titles << "availmem"    unless OPTIONS[:load]
-#  titles << "totmem"      unless OPTIONS[:load]
-#  titles << "idletime"    unless OPTIONS[:load]
-#  titles << "nusers"      unless OPTIONS[:load]
-#  titles << "nsessions"   unless OPTIONS[:load]
-#  titles << "sessions"    unless OPTIONS[:load]
-#  titles << "uname"       unless OPTIONS[:load]
-#  titles << "opsys"       unless OPTIONS[:load]
-#end
-#
-###Data
-#data = []
-#results.keys.sort.each do |host|
-#  items = [host]
-#  #printf("%9s: ", )
-#  #
-#  if OPTIONS[:ping]
-#    #state = HIGHLINE.color("dead", :red)
-#    state = "dead"
-#    state = "alive" if results[host][:ping].alive?
-#    items << state
-#    #sprintf("%5s", state)
-#  end
-#
-#  if OPTIONS[:pbsnodes]
-#    if results[host][:pbsnodes]
-#      items << results[host][:pbsnodes].state
-#      items << results[host][:pbsnodes].np                  unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].properties          unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].ntype               unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].gpus                unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["rectime"  ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["varattr"  ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["jobs"     ]                       
-#      items << results[host][:pbsnodes].status["state"    ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["netload"  ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["gres"     ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["loadave"  ]                       
-#      items << results[host][:pbsnodes].status["ncpus"    ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["physmem"  ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["availmem" ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["totmem"   ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["idletime" ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["nusers"   ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["nsessions"] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["sessions" ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["uname"    ] unless OPTIONS[:load] 
-#      items << results[host][:pbsnodes].status["opsys"    ] unless OPTIONS[:load] 
-#    else
-#      items << "pbs_unknown_host"
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << ""                       
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << ""                       
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#      items << "" unless OPTIONS[:load] 
-#
-#    end
-#  end
-#  data << items
-#end
-#
-#data = data.unshift(titles)
-##pp data
-#t = Tefil::ColumnFormer.new
-#t.form(data, $stdout, "|")

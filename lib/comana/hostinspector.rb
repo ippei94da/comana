@@ -5,8 +5,9 @@ require "yaml"
 
 class Comana::HostInspector
   PING_MIN_INTERVAL = 1
-
   CACHE_DIR = "#{ENV['HOME']}/var/comana"
+
+  class NoUpdateFile < Exception; end
 
   attr_reader :hostname
 
@@ -125,11 +126,6 @@ class Comana::HostInspector
     write_cache('meminfo', results)
   end
 
-  #def update_lspci
-
-
-
-
   ############################################################
   ## common
   #Return from cached ping data.
@@ -156,7 +152,12 @@ class Comana::HostInspector
   end
 
   def load_cache(name)
-    return nil unless File.exist? "#{@cache_dir}/#{name}.yaml"
+    #return nil unless File.exist? "#{@cache_dir}/#{name}.yaml"
+    cache_file = "#{@cache_dir}/#{name}.yaml"
+    unless File.exist? cache_file
+      raise NoUpdateFile, "#{cache_file} not found."
+    end
+
     YAML.load_file("#{@cache_dir}/#{name}.yaml")
   end
 

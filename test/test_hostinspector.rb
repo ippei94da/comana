@@ -90,8 +90,13 @@ class TC_HostInspector < Test::Unit::TestCase
     @h01.update_ping
     assert_equal(false, @h01.fetch('ping'))
 
-    assert_equal(nil, Comana::HostInspector.new("undone_update").fetch('ping'))
-
+    ping_file = "#{CACHE_DIR}/#{@h00.hostname}/ping.yaml"
+    FileUtils.rm ping_file if File.exist?(ping_file)
+    assert_raise(Comana::HostInspector::NoUpdateFile) do
+      @h00.fetch('ping')
+    end
+    @h00.update_ping
+    assert_equal(true, @h00.fetch('ping'))
   end
 
   def test_time_ping

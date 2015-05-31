@@ -19,10 +19,10 @@ op = OptionParser.new
 op.banner = [
     "Usage: #{COMMAND_NAME} [options] [hosts]",
     "E.g.,",
-    "       #{COMMAND_NAME} -p                # for all hosts "
-    "       #{COMMAND_NAME} -p host01 host02"
-    "       #{COMMAND_NAME} -p -g host_series"
-    "       #{COMMAND_NAME} -p -u             # update cached data"
+    "       #{COMMAND_NAME} -p                # for all hosts ",
+    "       #{COMMAND_NAME} -p host01 host02",
+    "       #{COMMAND_NAME} -p -g host_series",
+    "       #{COMMAND_NAME} -p -u             # update cached data",
     #"  #{COMMAND_NAME} ping",
     #"  #{COMMAND_NAME} cwd",
     #"  #{COMMAND_NAME} ps",

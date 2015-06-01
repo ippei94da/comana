@@ -13,10 +13,10 @@ op.banner = <<HERE
 Usage: #{COMMAND_NAME} subcommand [options] [hosts]
 Subcommands:
   ping    # Ping: o and x indicate OK and N/A, respectively.
-  cwd     # cwd of processes.
+  cwd     # cwd of processes owned by ssh login user.
   ps      # Info from ps.
-  cpuinfo # CPU from /proc/cpuinfo.
-  meminfo # CPU from /proc/meminfo.
+  cpuinfo # CPU information from /proc/cpuinfo.
+  meminfo # memory information from /proc/meminfo.
   load    # the highest process
 For example,
   #{COMMAND_NAME} ping                # for all hosts 
@@ -118,35 +118,37 @@ end
 
 ## Output
 hostinspectors.each do |hi|
+  # oldest update
+  oldest_key, val = requirement.min_by {|key,val| hi.time_updated(key.to_s)}
+  printf("%-10s (%12s) ",
+         hi.hostname, time_ago( hi.time_updated(oldest_key.to_s)))
   begin
     case subcommand
     when "ping"
       result = "x"
       result = "o" if hi.fetch('ping')
-      printf("%-10s %1s (%11s)\n",
-             hi.hostname, result, time_ago( hi.time_updated("ping")))
+      printf("%1s\n", result)
     when "cwd"
+      puts
       hi.fetch('cwd').each do |pid, cwd|
-        printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
+        printf("  %-10s %5s %s\n", hi.hostname, pid, cwd)
       end
     when "ps"
       hi.fetch('ps').each do |pid, ps|
         #printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
-        printf("%-10s %5s\n", hi.hostname, pid)
+        printf("  %-10s %5s\n", hi.hostname, pid)
       end
     when "cpuinfo"
+      begin
       cpuinfo = hi.fetch('cpuinfo')
-      if cpuinfo[0]["model name"]
-        printf("%-10s %2d_cores  %s\n",
-               hi.hostname, cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
-      else
-        printf("%-10s not_obtained\n", hi.hostname)
+        printf("%2d_cores  %s\n",
+               cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
+      rescue
+        printf("not_obtained\n")
       end
     when "meminfo"
       meminfo = hi.fetch('meminfo')
-      printf("%-10s %s\n",
-             hi.hostname, meminfo['MemTotal']
-            )
+      printf("%s\n", meminfo['MemTotal'])
     when "load"
       #printf("%10s %5s %8s %5s %5s %20s %s\n",
       #        'host', 'pid', 'user', 'cpu', 'mem', 
@@ -159,14 +161,15 @@ hostinspectors.each do |hi|
       #sum =0.0
       pid, process = ps.max_by {|key, val| val['cpu'].to_f}
       command = File.basename(process['command'].split[0])
-      printf("%-10s %5s %8s %5.1f %5.1f %20s %s",
+      printf("%-10s %5s %8s %5.1f %5.1f %20s %s\n",
              hi.hostname, pid, process['user'], process['cpu'], process['mem'],
             command, cwd[pid])
 
     end
   rescue Comana::HostInspector::NoUpdateFile
-    puts "#{hi.hostname} need update."
+    #puts "need update."
+    puts "------------"
   rescue NoMethodError # 主にデータを取れなかった時用
-    puts "#{hi.hostname} ------------"
+    puts "------------"
   end
 end

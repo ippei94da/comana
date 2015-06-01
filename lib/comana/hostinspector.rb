@@ -39,9 +39,11 @@ class Comana::HostInspector
   ##cwd
   ##readlink コマンドが使えるかとも思ったが、シムリンク自体の名前が不明瞭になる。
   def update_cwd
-    str = `ssh #{@hostname} 'ls -l /proc/*/cwd'`
+    #str = `ssh #{@hostname} 'ls -l /proc/*/cwd'`
+    str = ssh_str('ls -l /proc/\*/cwd 2> /dev/null')
     results = {}
     str.split("\n").each do |line|
+      #pp line
       items = line.split
       pid = items[8].sub(/^\/proc\//, '').sub(/\/cwd$/, '')
       results[pid] = items[10]
@@ -64,24 +66,41 @@ class Comana::HostInspector
   #ippei    23217  0.0  0.0 ps -o user pid %cpu %mem command
   #0---------1---------2---------3---------4---------5---------6---------7
   #0-2-4-6-8-0-2-4-6-8-0-2-4-6-8-0-2-4-6-8-0-2-4-6-8-0-2-4-6-8-0-2-4-6-8-0
-  #
+  #auxw だと、
+  #ippei     2948  198 11.8 4495708 3884740 pts/3 Rl   Apr01 173494:26 /opt/bin/vasp5212openmpi で桁が崩れることがある。
   def update_ps
-    str = `ssh #{@hostname} 'ps auxw'`
+    #str = ssh_str('ps -eo "user pid %cpu %mem command"')
+    #results = {}
+    #lines = str.split("\n")
+    #lines.shift  # titles of items
+    #lines.each do |line|
+    #  user     = line[0..7]
+    #  pid      = line[9..13]
+    #  cpu      = line[15..18]
+    #  mem      = line[20..23]
+    #  command  = line[25..-1]
+    #  results[pid] = {
+    #    "user"    => user,
+    #    "cpu"     => cpu,
+    #    "mem"     => mem,
+    #    "command" => command
+    #  }
+    #end
+    #write_cache('ps', results)
+
+    #str = `ssh #{@hostname} 'ps auxw'`
+    str = ssh_str('ps auxw')
     results = {}
     lines = str.split("\n")
     lines.shift  # titles of items
     lines.each do |line|
-      user     = line[0..7]
-      pid      = line[9..13]
-      cpu      = line[15..18]
-      mem      = line[20..23]
-      #vsz      = line[25..30]
-      #rss      = line[32..36]
-      #tty      = line[38..45]
-      #stat     = line[47..50]
-      #start    = line[52..56]
-      #time     = line[58..63]
-      command  = line[65..-1]
+      items = line.split
+      user    = items[0]
+      pid     = items[1]
+      cpu     = items[2]
+      mem     = items[3]
+      command = items[10]
+
       results[pid] = {
         "user"    => user,
         "cpu"     => cpu,
@@ -90,6 +109,32 @@ class Comana::HostInspector
       }
     end
     write_cache('ps', results)
+
+    ##str = `ssh #{@hostname} 'ps auxw'`
+    #str = ssh_str('ps auxw')
+    #results = {}
+    #lines = str.split("\n")
+    #lines.shift  # titles of items
+    #lines.each do |line|
+    #  user     = line[0..7]
+    #  pid      = line[9..13]
+    #  cpu      = line[15..18]
+    #  mem      = line[20..23]
+    #  #vsz      = line[25..30]
+    #  #rss      = line[32..36]
+    #  #tty      = line[38..45]
+    #  #stat     = line[47..50]
+    #  #start    = line[52..56]
+    #  #time     = line[58..63]
+    #  command  = line[65..-1]
+    #  results[pid] = {
+    #    "user"    => user,
+    #    "cpu"     => cpu,
+    #    "mem"     => mem,
+    #    "command" => command
+    #  }
+    #end
+    #write_cache('ps', results)
   end
 
   # dmesg ログ形式でつらい。
@@ -98,7 +143,8 @@ class Comana::HostInspector
   # 実際の速度で書かれるらしい。
   # 負荷の有無で値がかわる。
   def update_cpuinfo
-    str = `ssh #{@hostname} 'cat /proc/cpuinfo'`
+    #str = `ssh #{@hostname} 'cat /proc/cpuinfo'`
+    str = ssh_str('cat /proc/cpuinfo')
     results = []
     cur_index = 0
     results[cur_index] = {}
@@ -116,7 +162,8 @@ class Comana::HostInspector
   end
 
   def update_meminfo
-    str = `ssh #{@hostname} 'cat /proc/meminfo'`
+    #str = `ssh #{@hostname} 'cat /proc/meminfo'`
+    str = ssh_str('cat /proc/meminfo')
     results = {}
     lines = str.split("\n")
     lines.each do |line|
@@ -143,6 +190,17 @@ class Comana::HostInspector
   end
 
   private
+
+  # 先に ping を打ち、返事がなければ 空文字列 を返す。
+  def ssh_str(command)
+    #pp command
+    update_ping
+    if fetch('ping')
+      return `ssh #{@hostname} #{command}`
+    else
+      return ''
+    end
+  end
 
   def write_cache(name, value)
     FileUtils.mkdir_p @cache_dir

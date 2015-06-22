@@ -1,2 +1,20 @@
+#! /usr/bin/env ruby
 
-early_queue
+
+require 'thor'
+
+### Command template
+class Queueinfo < Thor
+  desc "light", "Detect the lightest queue."
+  def light
+    puts "TODO"
+  end
+
+  def job
+  end
+
+end
+
+Queueinfo.start(ARGV)
+
+

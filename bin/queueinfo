@@ -2,15 +2,23 @@
 
 
 require 'thor'
+require 'comana'
+require 'pp'
 
 ### Command template
 class Queueinfo < Thor
   desc "light", "Detect the lightest queue."
-  def light
-    puts "TODO"
+
+  def lightqueue
+    qinfo = Comana::QueueManager.new
+    qinfo.light_queue
   end
 
-  def job
+  #def job
+  #end
+
+  def show
+
   end
 
 end

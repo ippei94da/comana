@@ -13,6 +13,7 @@ op.banner = <<HERE
 Usage: #{COMMAND_NAME} subcommand [options] [hosts]
 Subcommands:
   ping    # Ping: o and x indicate OK and N/A, respectively.
+  alive   # Ping only alive: show alive hostname
   cwd     # cwd of processes owned by ssh login user.
   ps      # Info from ps.
   cpuinfo # CPU information from /proc/cpuinfo.
@@ -35,6 +36,8 @@ subcommand = ARGV.shift
 requirement = {}
 case subcommand
 when "ping"
+  requirement[:ping] = true
+when "alive"
   requirement[:ping] = true
 when "cwd"
   requirement[:cwd] = true
@@ -120,56 +123,60 @@ end
 hostinspectors.each do |hi|
   # oldest update
   oldest_key, val = requirement.min_by {|key,val| hi.time_updated(key.to_s)}
-  printf("%-10s (%12s) ",
+  hostname = hi.hostname
+  timeago  = time_ago( hi.time_updated(oldest_key.to_s))
+  hosttime = sprintf("%-10s (%12s) ",
          hi.hostname, time_ago( hi.time_updated(oldest_key.to_s)))
   begin
     case subcommand
     when "ping"
-      result = "x"
-      result = "o" if hi.fetch('ping')
-      printf("%1s\n", result)
+      if hi.fetch('ping')
+        hosttime += "o"
+      else
+        hosttime += "x"
+      end
+      puts hosttime
+    when "alive"
+      puts hostname if hi.fetch('ping')
     when "cwd"
-      puts
+      puts hosttime
       hi.fetch('cwd').each do |pid, cwd|
-        printf("  %-10s %5s %s\n", hi.hostname, pid, cwd)
+        printf("  %5s %s\n", pid, cwd)
       end
     when "ps"
+      puts hosttime
       hi.fetch('ps').each do |pid, ps|
-        #printf("%-10s %5s %s\n", hi.hostname, pid, cwd)
         printf("  %-10s %5s\n", hi.hostname, pid)
       end
     when "cpuinfo"
+      result = hosttime
       begin
-      cpuinfo = hi.fetch('cpuinfo')
-        printf("%2d_cores  %s\n",
+        cpuinfo = hi.fetch('cpuinfo')
+        result += sprintf("%2d_cores  %s\n",
                cpuinfo.size, cpuinfo[0]["model name"].gsub(/ +/, '_'))
       rescue
-        printf("not_obtained\n")
+        result += sprintf("not_obtained\n")
       end
+      puts result
     when "meminfo"
+      result = hosttime
       meminfo = hi.fetch('meminfo')
-      printf("%s\n", meminfo['MemTotal'])
+      result += sprintf("%s\n", meminfo['MemTotal'])
+      puts result
     when "load"
-      #printf("%10s %5s %8s %5s %5s %20s %s\n",
-      #        'host', 'pid', 'user', 'cpu', 'mem', 
-      #        'command', 'cwd')
-
+      result = hosttime
       ps      = hi.fetch("ps")
       cwd     = hi.fetch("cwd")
-
-      #pp ps
-      #sum =0.0
       pid, process = ps.max_by {|key, val| val['cpu'].to_f}
       command = File.basename(process['command'].split[0])
-      printf("%-10s %5s %8s %5.1f %5.1f %20s %s\n",
-             hi.hostname, pid, process['user'], process['cpu'], process['mem'],
+      result += sprintf("%5s %8s %5.1f %5.1f %20s %s\n",
+             pid, process['user'], process['cpu'], process['mem'],
             command, cwd[pid])
-
+      puts result
     end
   rescue Comana::HostInspector::NoUpdateFile
-    #puts "need update."
-    puts "------------"
+    puts hosttime + "------------"
   rescue NoMethodError # 主にデータを取れなかった時用
-    puts "------------"
+    puts hosttime + "------------"
   end
 end

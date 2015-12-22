@@ -43,8 +43,4 @@ if OPTIONS[:submit]
 
     qsubfile = OPTIONS[:outfile]
     
-    logfile  = qsubfile.sub(/#{File.extname qsubfile}$/, '.log')
-    command = "qsub #{OPTIONS[:outfile]} > #{logfile}"
-    puts command
-    system command
 end

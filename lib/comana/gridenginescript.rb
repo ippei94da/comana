@@ -5,6 +5,8 @@
 #
 #
 class GridEngineScript
+  DEFAULT_QSUB_FILE = 'qsub.sh'
+
   #
   def initialize()
   end
@@ -41,6 +43,22 @@ cut -d " " -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE
 
 #{command}
 HERE
+    string
+  end
+
+  def self.write(series, ppn, command, io)
+    io.puts self.string(series, ppn, command)
+  end
+
+  def self.write_submit(series, ppn, command)
+    qsub_file = DEFAULT_QSUB_FILE
+    io = File.open(qsub_file, 'w')
+    self.write(series, ppn, command, io)
+
+    logfile  = qsub_file.sub(/#{File.extname qsub_file}$/, '.log')
+    command = "qsub #{qsub_file} > #{logfile}"
+    puts command
+    system command
   end
 
 end

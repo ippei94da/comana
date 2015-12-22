@@ -8,21 +8,22 @@ require "yaml"
 # E.g.,
 #   "Fe", "Fe00", "Fe01" are of series "Fe" and not "F"
 class Comana::ClusterSetting
-  attr_reader :groups, :pbs_server
+  attr_reader :data_file, :groups, :pbs_server
 
   DEFAULT_DATA_FILE = ENV["HOME"] + "/.clustersetting"
 
   class NoEntryError < Exception; end
 
   #
-  def initialize(settings)
+  def initialize(settings, data_file = nil)
     @pbs_server = settings["pbs_server"]
     @groups = settings["groups"]
+    @data_file = data_file
   end
 
   def self.load_file(data_file = DEFAULT_DATA_FILE)
     settings = YAML.load_file(data_file)
-    self.new settings
+    self.new(settings, data_file)
   end
 
   #Return belonged cluster of the host.

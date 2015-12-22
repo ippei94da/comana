@@ -1,0 +1,50 @@
+#! /usr/bin/env ruby
+# coding: utf-8
+
+require "pp"
+require "comana"
+require "optparse"
+
+## option analysis
+OPTIONS = {}
+op = OptionParser.new
+op.banner = [
+  "Usage: #{File.basename("#{__FILE__}")} [options] host_series command",
+].join("\n")
+op.on("-s"   , "--submit"    , "Submit at the same time."){OPTIONS[:submit] = true}
+op.on("-o file", "--outfile=file", "Output in file."){|v| OPTIONS[:outfile] = v}
+op.parse!(ARGV)
+
+io = STDOUT
+io = File.open( OPTIONS[:outfile], "w") if OPTIONS[:outfile]
+
+series = ARGV.shift
+
+cluster_setting = Comana::ClusterSetting.load_file
+settings =  cluster_setting.groups[series]
+
+unless settings
+  puts "Not found '#{series}' in #{cluster_setting.data_file}"
+  puts op.banner
+  exit
+end
+ppn = settings["ppn"]
+
+command = ARGV.join(' ')
+
+GridEngineScript.generate(io, series, ppn, command)
+io.close
+
+if OPTIONS[:submit]
+    unless OPTIONS[:outfile]
+        puts "'--submit' option must use with '--outfile' option."
+        exit
+    end
+
+    qsubfile = OPTIONS[:outfile]
+    
+    logfile  = qsubfile.sub(/#{File.extname qsubfile}$/, '.log')
+    command = "qsub #{OPTIONS[:outfile]} > #{logfile}"
+    puts command
+    system command
+end

@@ -5,6 +5,7 @@
   - Comana::ComputationManager.run is added.
   - Add Comana::HostInspector
   - Add bin/hostinfo
+  - Add bin/genqsub
 
 == Version 0.0.10 [2014-08-28] released
   - Provide namespace 'Comana' for classes.

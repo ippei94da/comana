@@ -4,6 +4,8 @@
 require "fileutils"
 #require "comana/computationmanager.rb"
 #require "comana/clustersetting.rb"
+#
+#For Torque. This class will be obsoleted.
 
 #
 #

@@ -32,7 +32,7 @@ class Comana::ComputationManager
       end
 
       begin
-          calc_dir.start
+        calc_dir.start
       rescue Comana::ComputationManager::AlreadyStartedError
         puts "Already started."
         next

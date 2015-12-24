@@ -5,7 +5,7 @@
 #
 #
 class GridEngineScript
-  DEFAULT_QSUB_FILE = 'qsub.sh'
+  #DEFAULT_QSUB_FILE = 'qsub.sh'
 
   #
   def initialize()
@@ -50,13 +50,14 @@ HERE
     io.puts self.string(series, ppn, command)
   end
 
-  def self.write_submit(series, ppn, command)
-    qsub_file = DEFAULT_QSUB_FILE
-    io = File.open(qsub_file, 'w')
+  def self.write_submit(series, ppn, command, filename)
+    #qsub_file = DEFAULT_QSUB_FILE
+    io = File.open(filename, 'w')
     self.write(series, ppn, command, io)
 
-    logfile  = qsub_file.sub(/#{File.extname qsub_file}$/, '.log')
-    command = "qsub #{qsub_file} > #{logfile}"
+    logfile  = filename.sub(/#{File.extname filename}$/, '.log')
+    command = "qsub #{filename} > #{logfile}"
+    #command = "qsub #{filename}"
     puts command
     system command
   end

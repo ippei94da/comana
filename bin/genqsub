@@ -41,6 +41,5 @@ if OPTIONS[:submit]
         exit
     end
 
-    qsubfile = OPTIONS[:outfile]
-    
+    GridEngineScript.write_submit(series, ppn, command, OPTIONS[:outfile])
 end

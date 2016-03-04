@@ -1,8 +1,8 @@
 = comana changelog
 
 == Master (for 0.1.0)
-  - Comana::ComputationManager#start() rename to run().
-  - Comana::ComputationManager.run is added.
+  - Comana::ComputationManager#start() rename to exec().
+  - Comana::ComputationManager.exec is added.
   - Add Comana::HostInspector
   - Add bin/hostinfo
   - Add bin/genqsub

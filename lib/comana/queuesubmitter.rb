@@ -55,7 +55,7 @@ class Comana::QueueSubmitter < Comana::ComputationManager
     script_path = "#{@dir}/#{SCRIPT}"
     File.open(script_path, "w") { |io| dump_script(io) }
 
-    # run
+    # exec
     system("cd #{@dir}; qsub -l prologue=#{prologue_path} -l epilogue=#{epilogue_path} #{script_path} > jobid.log")
   end
 

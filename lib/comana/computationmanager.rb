@@ -79,6 +79,36 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
+  def queue_submit
+    TODO
+    qsub スクリプトを作成
+
+    content = <<HERE
+#! /bin/sh
+#$ -S /bin/sh
+#$ -cwd
+#$ -o stdout
+#$ -e stderr
+#$ -q Cd.q
+#$ -pe Cd.openmpi 4
+
+MACHINE_FILE="machines"
+
+LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib
+export LD_LIBRARY_PATH
+
+cd $SGE_O_WORKDIR
+printenv | sort > printenv.log
+cut -d " " -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE
+
+#/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
+#{__FILE__} execute
+HERE
+
+    qsub をなげる。
+    qstat の id をきろく
+  end
+
   private
 
   # Redefine in subclass, e.g., 

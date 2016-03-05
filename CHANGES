@@ -2,27 +2,56 @@
 
 == Master (for 0.1.1)
 
+TODO
+
+- Comana::ComputationManager#start() rename to ...
+qsub
+
 
 == Version 0.1.0 [2016-03-04] released
-  - Comana::ComputationManager#start() rename to exec().
-  - Comana::ComputationManager.exec is added.
-  - Add Comana::HostInspector
-  - Add bin/hostinfo
-  - Add bin/genqsub
+- Comana::ComputationManager#start() rename to exec().
+- Comana::ComputationManager.exec is added.
+- Add Comana::HostInspector
+- Add bin/hostinfo
+- Add bin/genqsub
 
 == Version 0.0.10 [2014-08-28] released
-  - Provide namespace 'Comana' for classes.
-  - Add HostnameSelector
-  - Add HostnameSelector::Ping
-  - Add HostnameSelector::Pbsnodes
-  - MachineInfo class in machineinfo.rb is renamed to be
-    ClusterSetting class in clusterinfo.rb,
-    And change interface.
-  - Change Rspec to TestUnit
-  - Add bin/sshall
-  - Add bin/scpall
-  - Add priority option to opts in QueueSubmitter::initialize,
-    affecting PBS -p option in script.sh.
-  - ComputationManager.latest_modified_time is changed to public method.
+- Provide namespace 'Comana' for classes.
+- Add HostnameSelector
+- Add HostnameSelector::Ping
+- Add HostnameSelector::Pbsnodes
+- MachineInfo class in machineinfo.rb is renamed to be
+  ClusterSetting class in clusterinfo.rb,
+  And change interface.
+- Change Rspec to TestUnit
+- Add bin/sshall
+- Add bin/scpall
+- Add priority option to opts in QueueSubmitter::initialize,
+  affecting PBS -p option in script.sh.
+- ComputationManager.latest_modified_time is changed to public method.
 
 == Version 0.0.9 [2012-05-29] released
+  Change opts specification in QueueSubmitter; symbol to string
+
+== Version 0.0.8
+  Changed queuesubmitter option. (long name symbol)
+  Add prologue and epilogue to QueueSubmitter.
+
+== Version 0.0.7
+  Bugfix of danger to rsync large directory:
+    - bin/submitqueue is removed.
+    - lib/queuesubmitter.rb is modified.
+  lib/queuesubmitter.rb is modified.
+    - finished? returns bool.
+    - content of qsub script to use "rsync" and "mv dir ~/.trash".
+
+== Version 0.0.6
+  bin/submitqueue is add.
+  lib/queuesubmitter.rb is add.
+
+== Version 0.0.5
+  Directory structure and file names are changed.
+  Method names are hanged.
+  MachineInfo is added.
+
+== Version 0.0.4

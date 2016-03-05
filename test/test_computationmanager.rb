@@ -114,6 +114,12 @@ class TC_ComputationManager < Test::Unit::TestCase
     assert_equal(NOW - 1000, @calc00.latest_modified_time)
   end
 
+  def test_queue_submit
+    TODO
+
+
+  end
+
   def test_started?
     #it "should return false without lock." do
     assert_not_nil(@calc00.started?)

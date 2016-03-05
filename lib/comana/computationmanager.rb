@@ -18,7 +18,7 @@ class Comana::ComputationManager
     @alive_time = 3600
   end
 
-  def self.exec(args)
+  def self.execute(args)
     targets = args
     targets = [ENV['PWD']] if targets.size == 0
 
@@ -55,7 +55,7 @@ class Comana::ComputationManager
   # Execute calculation.
   # If log of ComputationManager exist, raise ComputationManager::AlreadyStartedError,
   # because the calculation has been done by other process already.
-  def exec
+  def execute
     begin
       Dir.mkdir "#{@dir}/#{@lockdir}"
     rescue Errno::EEXIST
@@ -68,7 +68,7 @@ class Comana::ComputationManager
       prepare_next
     end
   end
-  alias start exec
+  alias start execute
 
   # Return latest modified time of files in calc dir recursively.
   # require "find"

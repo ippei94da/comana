@@ -43,6 +43,25 @@ class Comana::ComputationManager
     end
   end
 
+  def self.write_qsub_script(q_name:, pe_name:, ld_library_path: , command:, io:)
+    io.puts "#! /bin/sh"
+    io.puts "#$ -S /bin/sh"
+    io.puts "#$ -cwd"
+    io.puts "#$ -o stdout"
+    io.puts "#$ -e stderr"
+    io.puts "#$ -q #{q_name}"
+    io.puts "#$ -pe #{pe_name}"
+    io.puts "MACHINE_FILE='machines'"
+    io.puts "LD_LIBRARY_PATH=#{ld_library_path}"
+    io.puts "export LD_LIBRARY_PATH"
+    io.puts "cd $SGE_O_WORKDIR"
+    io.puts "printenv | sort > printenv.log"
+    io.puts "cut -d ' ' -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE"
+    io.puts "#{command}"
+    #{__FILE__} execute
+  end
+
+
   # Return a symbol which indicate state of calculation.
   #   :yet           not started
   #   :started       started, but not ended, including short time from last output
@@ -72,7 +91,7 @@ class Comana::ComputationManager
       prepare_next
     end
   end
-  #alias start execute
+  alias start execute
 
   # Return latest modified time of files in calc dir recursively.
   # require "find"
@@ -83,36 +102,20 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
-  def queue_submit(command, series_name)
-    #series_name ||= find_low_series
-    setting = @setings[series_name]
-
+  def queue_submit(q_name:, pe_name:, ld_library_path: , command:)
     File.open(QSUB_SCRIPT_NAME, "w") do |io|
-      io.puts "#! /bin/sh"
-      io.puts "#$ -S /bin/sh"
-      io.puts "#$ -cwd"
-      io.puts "#$ -o stdout"
-      io.puts "#$ -e stderr"
-      io.puts "#$ -q #{setings['queue']}"
-      io.puts "#$ -pe #{setings['pe']}"
-      io.puts 'MACHINE_FILE="machines"'
-      io.puts "LD_LIBRARY_PATH=#{setings['ld_library_path']}"
-      io.puts 'export LD_LIBRARY_PATH'
-      io.puts 'cd $SGE_O_WORKDIR'
-      io.puts 'printenv | sort > printenv.log'
-      io.puts 'cut -d " " -f 1,2 $PE_HOSTFILE | sed "s/ / cpu=/" > $MACHINE_FILE'
-      io.puts "#{command}"
+      #self.class.write_qsub_script(q_name:, pe_name:, ld_library_path:, command:, io:)
+      self.class.write_qsub_script(q_name:            q_name,
+                                   pe_name:           pe_name,
+                                   ld_library_path:   ld_library_path,
+                                   command:           command,
+                                   io:                io
+                                  )
     end
     system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")
-
-    #/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
-    #{__FILE__} execute
   end
 
   private
-
-  def write_qsub_script(command, series_name = nil)
-  end
 
   # Redefine in subclass, e.g., 
   #   end_status = system "command"

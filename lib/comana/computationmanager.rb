@@ -9,6 +9,9 @@ class Comana::ComputationManager
   class AlreadyStartedError < Exception; end
   class ExecuteError < Exception; end
 
+  QSUB_SCRIPT_NAME = 'qsub.sh'
+  QSUB_LOG_NAME    = 'qsub.log'
+
   attr_reader :dir
 
   # You can redefine in subclass to modify from default values.
@@ -79,34 +82,32 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
-  def queue_submit
-    TODO
-    qsub スクリプトを作成
+  def queue_submit(command, series_name = nil)
+    series_name ||= find_low_series
+    setting = @setings[series_name]
 
-    content = <<HERE
-#! /bin/sh
-#$ -S /bin/sh
-#$ -cwd
-#$ -o stdout
-#$ -e stderr
-#$ -q Cd.q
-#$ -pe Cd.openmpi 4
+    File.open(QSUB_SCRIPT_NAME, "w") do |io|
+      io.puts "#! /bin/sh"
+      io.puts "#$ -S /bin/sh"
+      io.puts "#$ -cwd"
+      io.puts "#$ -o stdout"
+      io.puts "#$ -e stderr"
+      io.puts "#$ -q #{setings['queue']}"
+      io.puts "#$ -pe #{setings['pe']}"
+      io.puts 'MACHINE_FILE="machines"'
+      io.puts "LD_LIBRARY_PATH=#{setings['ld_library_path']}"
+      io.puts 'export LD_LIBRARY_PATH'
+      io.puts 'cd $SGE_O_WORKDIR'
+      io.puts 'printenv | sort > printenv.log'
+      io.puts 'cut -d " " -f 1,2 $PE_HOSTFILE | sed "s/ / cpu=/" > $MACHINE_FILE'
+      io.puts "#{command}"
+    end
+    system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")
 
-MACHINE_FILE="machines"
-
-LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib
-export LD_LIBRARY_PATH
-
-cd $SGE_O_WORKDIR
-printenv | sort > printenv.log
-cut -d " " -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE
-
-#/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
-#{__FILE__} execute
-HERE
-
-    qsub をなげる。
-    qstat の id をきろく
+      #/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
+      #{__FILE__} execute
+    .clustersetting の名前を再検討
+    .clustersetting のデフォルト設定機能
   end
 
   private

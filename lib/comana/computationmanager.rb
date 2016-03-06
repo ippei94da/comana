@@ -111,7 +111,8 @@ class Comana::ComputationManager
 
   private
 
-
+  def write_qsub_script(command, series_name = nil)
+  end
 
   # Redefine in subclass, e.g., 
   #   end_status = system "command"

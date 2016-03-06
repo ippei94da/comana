@@ -114,8 +114,10 @@ class TC_ComputationManager < Test::Unit::TestCase
     assert_equal(NOW - 1000, @calc00.latest_modified_time)
   end
 
-  def test_queue_submit
-    #TODO
+  #def test_queue_submit
+  #end
+
+  def test_write_qsub_script
   end
 
   def test_started?

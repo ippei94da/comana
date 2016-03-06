@@ -58,6 +58,7 @@ class Comana::ComputationManager
   # Execute calculation.
   # If log of ComputationManager exist, raise ComputationManager::AlreadyStartedError,
   # because the calculation has been done by other process already.
+  # This method is aliased to 'start'.
   def execute
     begin
       Dir.mkdir "#{@dir}/#{@lockdir}"
@@ -71,7 +72,7 @@ class Comana::ComputationManager
       prepare_next
     end
   end
-  alias start execute
+  #alias start execute
 
   # Return latest modified time of files in calc dir recursively.
   # require "find"
@@ -82,8 +83,8 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
-  def queue_submit(command, series_name = nil)
-    series_name ||= find_low_series
+  def queue_submit(command, series_name)
+    #series_name ||= find_low_series
     setting = @setings[series_name]
 
     File.open(QSUB_SCRIPT_NAME, "w") do |io|
@@ -104,13 +105,13 @@ class Comana::ComputationManager
     end
     system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")
 
-      #/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
-      #{__FILE__} execute
-    .clustersetting の名前を再検討
-    .clustersetting のデフォルト設定機能
+    #/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi
+    #{__FILE__} execute
   end
 
   private
+
+
 
   # Redefine in subclass, e.g., 
   #   end_status = system "command"

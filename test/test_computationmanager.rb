@@ -115,9 +115,7 @@ class TC_ComputationManager < Test::Unit::TestCase
   end
 
   def test_queue_submit
-    TODO
-
-
+    #TODO
   end
 
   def test_started?

@@ -7,6 +7,7 @@
 class Comana::ComputationManager
   class NotImplementedError < Exception; end
   class AlreadyStartedError < Exception; end
+  class AlreadySubmittedError < Exception; end
   class ExecuteError < Exception; end
 
   QSUB_SCRIPT_NAME = 'qsub.sh'
@@ -43,14 +44,14 @@ class Comana::ComputationManager
     end
   end
 
-  def self.write_qsub_script(q_name:, pe_name:, ld_library_path: , command:, io:)
+  def self.write_qsub_script(q_name:, pe_name:, ppn:, ld_library_path: , command:, io:)
     io.puts "#! /bin/sh"
     io.puts "#$ -S /bin/sh"
     io.puts "#$ -cwd"
     io.puts "#$ -o stdout"
     io.puts "#$ -e stderr"
     io.puts "#$ -q #{q_name}"
-    io.puts "#$ -pe #{pe_name}"
+    io.puts "#$ -pe #{pe_name} #{ppn}"
     io.puts "MACHINE_FILE='machines'"
     io.puts "LD_LIBRARY_PATH=#{ld_library_path}"
     io.puts "export LD_LIBRARY_PATH"
@@ -102,16 +103,20 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
-  def queue_submit(q_name:, pe_name:, ld_library_path: , command:)
+  def queue_submit(q_name:, pe_name:, ppn:, ld_library_path: , command:)
+    if FileTest.exist? "#{@dir}/#{QSUB_SCRIPT_NAME}"
+      raise AlreadySubmittedError, "Already exist #{@dir}/#{QSUB_SCRIPT_NAME}."
+    end
     File.open(QSUB_SCRIPT_NAME, "w") do |io|
-      #self.class.write_qsub_script(q_name:, pe_name:, ld_library_path:, command:, io:)
       self.class.write_qsub_script(q_name:            q_name,
                                    pe_name:           pe_name,
+                                   ppn:               ppn,
                                    ld_library_path:   ld_library_path,
                                    command:           command,
                                    io:                io
                                   )
     end
+    Dir.chdir @dir
     system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")
   end
 

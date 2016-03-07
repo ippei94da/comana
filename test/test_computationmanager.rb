@@ -123,7 +123,8 @@ class TC_ComputationManager < Test::Unit::TestCase
 
     Comana::ComputationManager.write_qsub_script(
       q_name:  'Cd.q',
-      pe_name: 'Cd.openmpi 4',
+      pe_name: 'Cd.openmpi',
+      ppn: '4',
       ld_library_path: '/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib',
       command: '/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi',
       io: io

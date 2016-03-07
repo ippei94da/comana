@@ -24,22 +24,85 @@ class Comana::ComputationManager
 
   def self.execute(args)
     targets = args
-    targets = [ENV['PWD']] if targets.size == 0
+    targets = [ENV['PWD']] if targets.empty?
 
     targets.each do |dir|
       print "#{dir}..."
       begin
         calc_dir = self.new(dir)
       rescue => exc
-        puts "Not suitable directory, due of an exception: #{exc}"
+        #puts "Not suitable directory, due of an exception: #{exc}"
+        puts "Not #{self.class}: #{dir}"
         next
       end
 
       begin
         calc_dir.start
-      rescue Comana::ComputationManager::AlreadyStartedError
-        puts "Already started."
+      rescue self::AlreadyStartedError
+        puts "Already started: #{dir}"
         next
+      end
+    end
+  end
+
+  def self.qsub(args, options)
+    #tgts = args
+    #tgts = [ENV['PWD']] if tgts.empty?
+
+    #command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
+
+    #tgts.each do |dir|
+    #  begin
+    #    calc_dir = VaspUtils::VaspGeometryOptimizer.new(dir)
+    #    calc_dir.queue_submit(
+    #      q_name:           options[:q_name],
+    #      pe_name:          options[:pe_name],
+    #      ld_library_path:  options[:ld_library_path],
+    #      command:          command
+    #    )
+    #  rescue VaspUtils::VaspGeometryOptimizer::InitializeError
+    #    puts "Not VaspDir: #{dir}"
+    #    exit
+    #  rescue Comana::ComputationManager::AlreadySubmittedError
+    #    puts "Already started. Exit."
+    #    exit
+    #  end
+    #end
+    tgts = args
+    tgts = [ENV['PWD']] if tgts.empty?
+
+    q_name          = options[:q_name]           
+    pe_name         = options[:pe_name]          
+    ppn             = options[:ppn]          
+    ld_library_path = options[:ld_library_path]  
+    #command         = options[:command]         
+    command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
+    if options[:load_group]
+      settings = Comana::ClusterSetting.load_file
+      gs = settings.groups[options[:load_group]]
+      q_name          ||= gs['queue']
+      pe_name         ||= gs['pe']         
+      ppn             ||= gs['ppn']         
+      ld_library_path ||= gs['ld_library_path'] 
+      #pp gs
+    end
+
+    tgts.each do |dir|
+      begin
+        calc_dir = VaspUtils::VaspDir.new(dir)
+        calc_dir.queue_submit(
+          q_name:           q_name,
+          pe_name:          pe_name,
+          ppn:              ppn,
+          ld_library_path:  ld_library_path,
+          command:          command
+        )
+      rescue VaspUtils::VaspDir::InitializeError
+        puts "Not VaspDir: #{dir}"
+        exit
+      rescue Comana::ComputationManager::AlreadySubmittedError
+        puts "Already started. Exit."
+        exit
       end
     end
   end
@@ -105,16 +168,18 @@ class Comana::ComputationManager
 
   def queue_submit(q_name:, pe_name:, ppn:, ld_library_path: , command:)
     if FileTest.exist? "#{@dir}/#{QSUB_SCRIPT_NAME}"
-      raise AlreadySubmittedError, "Already exist #{@dir}/#{QSUB_SCRIPT_NAME}."
+      raise AlreadySubmittedError,
+        "Already exist #{@dir}/#{QSUB_SCRIPT_NAME}."
     end
     File.open(QSUB_SCRIPT_NAME, "w") do |io|
-      self.class.write_qsub_script(q_name:            q_name,
-                                   pe_name:           pe_name,
-                                   ppn:               ppn,
-                                   ld_library_path:   ld_library_path,
-                                   command:           command,
-                                   io:                io
-                                  )
+      self.class.write_qsub_script(
+        q_name:          q_name,
+        pe_name:         pe_name,
+        ppn:             ppn,
+        ld_library_path: ld_library_path,
+        command:         command,
+        io:              io
+      )
     end
     Dir.chdir @dir
     system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")

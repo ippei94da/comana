@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+<job_info  xmlns:xsd="http://gridengine.sunsource.net/source/browse/*checkout*/gridengine/source/dist/util/resources/schemas/qstat/qstat.xsd?revision=1.11">
+  <queue_info>
+    <job_list state="running">
+      <JB_job_number>26</JB_job_number>
+      <JAT_prio>0.75000</JAT_prio>
+      <JB_name>vasp-Ag.qsub</JB_name>
+      <JB_owner>koyama</JB_owner>
+      <state>r</state>
+      <JAT_start_time>2016-02-16T17:53:44</JAT_start_time>
+      <queue_name>Ag.q@Ag01.calc.atom</queue_name>
+      <slots>4</slots>
+    </job_list>
+    <job_list state="running">
+      <JB_job_number>46</JB_job_number>
+      <JAT_prio>0.73443</JAT_prio>
+      <JB_name>vasp-Tc.qsub</JB_name>
+      <JB_owner>koyama</JB_owner>
+      <state>dr</state>
+      <JAT_start_time>2016-02-17T09:31:36</JAT_start_time>
+      <queue_name>Tc.q@Tc04.calc.atom</queue_name>
+      <slots>4</slots>
+    </job_list>
+    <job_list state="running">
+      <JB_job_number>283</JB_job_number>
+      <JAT_prio>0.51059</JAT_prio>
+      <JB_name>vasp-Ag.qsub</JB_name>
+      <JB_owner>koyama</JB_owner>
+      <state>r</state>
+      <JAT_start_time>2016-02-26T18:10:43</JAT_start_time>
+      <queue_name>Ag.q@Ag05.calc.atom</queue_name>
+      <slots>4</slots>
+    </job_list>
+  </queue_info>
+  <job_info>
+    <job_list state="pending">
+      <JB_job_number>468</JB_job_number>
+      <JAT_prio>0.25000</JAT_prio>
+      <JB_name>vasp-Ga.qsub</JB_name>
+      <JB_owner>ippei</JB_owner>
+      <state>qw</state>
+      <JB_submission_time>2016-03-08T15:43:29</JB_submission_time>
+      <queue_name></queue_name>
+      <slots>4</slots>
+    </job_list>
+  </job_info>
+</job_info>

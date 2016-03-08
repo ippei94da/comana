@@ -70,7 +70,6 @@ class Comana::ComputationManager
     #end
     #
     cs = Comana::ClusterSetting.load_file
-    exit
     if options[:auto]
       queues = Comana::GridEngine.queues
       queues.each do |q|

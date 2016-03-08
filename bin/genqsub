@@ -5,41 +5,49 @@ require "pp"
 require "comana"
 require "optparse"
 
-## option analysis
-OPTIONS = {}
+options = {}
 op = OptionParser.new
-op.banner = [
-  "Usage: #{File.basename("#{__FILE__}")} [options] host_series command",
-].join("\n")
-op.on("-s"   , "--submit"    , "Submit at the same time."){OPTIONS[:submit] = true}
-op.on("-o file", "--outfile=file", "Output in file."){|v| OPTIONS[:outfile] = v}
+op.banner = <<HERE
+genqsub [options] [dirs]
+Submit queue to grid engine. Empty 'dirs' in argument indicates current directory.
+HERE
+op.on('--q-name=queue'         , "Queue name for '#$ -q'"){
+  |v| options[:q_name] = v}
+op.on('--pe-name=pe'     , "Parallel environment name for '\#$ -pe'"){
+  |v| options[:pe_name] = v}
+op.on('--ppn=ppn'            , "Process per node, 2nd argument for'#$ -pe'"){
+  |v| options[:ppn] = v}
+op.on('--ld_library_path=path', "Set 'LD_LIBRARY_PATH'"){
+  |v| options[:ld_library_path] = v}
+op.on('--load-group=group'     , "Load setting from group in setting file."){
+  |v| options[:load_group] = v}
+#op.on('-no_submit'      , "Write script', ' but not submit."){
+#|v| options[:no_submit] = v}
+op.on('--auto'           , "Select low load group and automatic setting."){ options[:auto] = true}
 op.parse!(ARGV)
 
-io = STDOUT
-io = File.open( OPTIONS[:outfile], "w") if OPTIONS[:outfile]
+if options[:load_group]
+  settings = Comana::ClusterSetting.load_file
+  gs = settings.groups[options[:load_group]]
+  q_name          ||= gs['queue']
+  pe_name         ||= gs['pe']         
+  ppn             ||= gs['ppn']         
+  ld_library_path ||= gs['ld_library_path'] 
+end
 
-series = ARGV.shift
-
-cluster_setting = Comana::ClusterSetting.load_file
-settings =  cluster_setting.groups[series]
-
-unless settings
-  puts "Not found '#{series}' in #{cluster_setting.data_file}"
-  puts op.banner
+if ARGV.empty?
+  puts "Need command in argument. Exit."
   exit
+else
+  command = ARGV.join(" ")
 end
-ppn = settings["ppn"]
 
-command = ARGV.join(' ')
+GridEngine.write_qsub_script(
+  q_name:          q_name          ,
+  pe_name:         pe_name         ,
+  ppn:             ppn             ,
+  command:         command         ,
+  ld_library_path: ld_library_path ,
+  io: $stdout
+)
 
-GridEngineScript.generate(io, series, ppn, command)
-io.close
-
-if OPTIONS[:submit]
-    unless OPTIONS[:outfile]
-        puts "'--submit' option must use with '--outfile' option."
-        exit
-    end
-
-    GridEngineScript.write_submit(series, ppn, command, OPTIONS[:outfile])
-end

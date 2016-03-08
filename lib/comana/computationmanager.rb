@@ -68,6 +68,28 @@ class Comana::ComputationManager
     #    exit
     #  end
     #end
+    #
+    cs = Comana::ClusterSetting.load_file
+    exit
+    if options[:auto]
+      queues = Comana::GridEngine.queues
+      queues.each do |q|
+        j = Comana::GridEngine.queue_jobs(q).size
+        h = Comana::GridEngine.queue_alive_nums[q]
+
+        #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
+
+        pp j
+        pp n
+        pp t
+        puts
+      end
+    end
+
+    pp min_queue
+    exit
+
+
     tgts = args
     tgts = [ENV['PWD']] if tgts.empty?
 

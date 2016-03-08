@@ -118,39 +118,6 @@ class TC_ComputationManager < Test::Unit::TestCase
   #def test_queue_submit
   #end
 
-  def test_write_qsub_script
-    io = StringIO.new
-
-    Comana::ComputationManager.write_qsub_script(
-      q_name:  'Cd.q',
-      pe_name: 'Cd.openmpi',
-      ppn: '4',
-      ld_library_path: '/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib',
-      command: '/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi',
-      io: io
-    )
-    io.rewind
-    results = io.readlines
-    corrects = [
-      "#! /bin/sh\n",
-      "#$ -S /bin/sh\n",
-      "#$ -cwd\n",
-      "#$ -o stdout\n",
-      "#$ -e stderr\n",
-      "#$ -q Cd.q\n",
-      "#$ -pe Cd.openmpi 4\n",
-      "MACHINE_FILE='machines'\n",
-      "LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib\n",
-      "export LD_LIBRARY_PATH\n",
-      "cd $SGE_O_WORKDIR\n",
-      "printenv | sort > printenv.log\n",
-      "cut -d ' ' -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE\n",
-      "/opt/openmpi-intel/bin/mpiexec -machinefile machines -np $NSLOTS /opt/bin/vasp5212openmpi\n",
-    ]
-    assert_equal(corrects, results)
-    
-  end
-
   def test_started?
     #it "should return false without lock." do
     assert_not_nil(@calc00.started?)

@@ -1,7 +1,10 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
-#
+puts "WARNING: GridEngineScript is obsoleted. Use GridEngineInterface."
+
+exit
+
 #
 #
 class GridEngineScript

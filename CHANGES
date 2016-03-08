@@ -7,6 +7,9 @@ TODO
 - Comana::ComputationManager#start() rename to ...
 qsub
 
+- Remove GridEngineScript
+- Remove bin/genqsub
+
 
 == Version 0.1.0 [2016-03-04] released
 - Comana::ComputationManager#start() rename to exec().

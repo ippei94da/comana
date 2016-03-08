@@ -107,24 +107,6 @@ class Comana::ComputationManager
     end
   end
 
-  def self.write_qsub_script(q_name:, pe_name:, ppn:, ld_library_path: , command:, io:)
-    io.puts "#! /bin/sh"
-    io.puts "#$ -S /bin/sh"
-    io.puts "#$ -cwd"
-    io.puts "#$ -o stdout"
-    io.puts "#$ -e stderr"
-    io.puts "#$ -q #{q_name}"
-    io.puts "#$ -pe #{pe_name} #{ppn}"
-    io.puts "MACHINE_FILE='machines'"
-    io.puts "LD_LIBRARY_PATH=#{ld_library_path}"
-    io.puts "export LD_LIBRARY_PATH"
-    io.puts "cd $SGE_O_WORKDIR"
-    io.puts "printenv | sort > printenv.log"
-    io.puts "cut -d ' ' -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE"
-    io.puts "#{command}"
-    #{__FILE__} execute
-  end
-
 
   # Return a symbol which indicate state of calculation.
   #   :yet           not started
@@ -166,13 +148,13 @@ class Comana::ComputationManager
     File.mtime(tmp)
   end
 
-  def queue_submit(q_name:, pe_name:, ppn:, ld_library_path: , command:)
+  def queue_submit(q_name:, pe_name:, ppn:, ld_library_path: , command:, submit: true)
     if FileTest.exist? "#{@dir}/#{QSUB_SCRIPT_NAME}"
       raise AlreadySubmittedError,
         "Already exist #{@dir}/#{QSUB_SCRIPT_NAME}."
     end
     File.open(QSUB_SCRIPT_NAME, "w") do |io|
-      self.class.write_qsub_script(
+      GridEngine.write_qsub_script(
         q_name:          q_name,
         pe_name:         pe_name,
         ppn:             ppn,
@@ -182,7 +164,8 @@ class Comana::ComputationManager
       )
     end
     Dir.chdir @dir
-    system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}")
+    system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}") if options[:submit]
+
   end
 
   private

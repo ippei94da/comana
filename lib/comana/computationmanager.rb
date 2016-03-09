@@ -117,18 +117,26 @@ class Comana::ComputationManager
 
   def self.effective_queue
     queues = Comana::GridEngine.queues
-    queues.each do |q|
+    candidates = queues.select do |q|
       j = Comana::GridEngine.queue_jobs(q).size
       h = Comana::GridEngine.queue_alive_nums[q]
-
-      #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
-
-      pp queues
-      pp j
-      pp h
-      puts
+      j < h
     end
-    exit
+    #pp candidates
+
+    if candidates
+      result = candidates.min_by{|q| q.benchmark}
+      # 予想時間が短いのを選ぶ。
+      #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
+    else
+      result = queues.min_by{|q| self.guess_end_time(q) }
+      #のなかで予想時間が短いのを選ぶ。
+    end
+    result
+  end
+
+  def self.guess_end_time(nj:j, nh:h, bench)
+    TODO
   end
 
   # Return a symbol which indicate state of calculation.

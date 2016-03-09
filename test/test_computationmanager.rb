@@ -25,45 +25,45 @@ class Comana::GridEngine
         "JAT_start_time"=>"2016-03-08T16:59:02",
         "queue_name"=>"Ga.q@Ga00.calc.atom",
         "slots"=>4},
-        {"job_list_state"=>"running",
-        "JB_job_number"=>563,
-        "JAT_prio"=>0.25,
-        "JB_name"=>"vasp-Ga.qsub",
-        "JB_owner"=>"ippei",
-        "state"=>"r",
-        "JAT_start_time"=>"2016-03-08T16:59:02",
-        "queue_name"=>"Ga.q@Ga01.calc.atom",
-        "slots"=>4},
-        {"job_list_state"=>"pending",
-        "JB_job_number"=>564,
-        "JAT_prio"=>0.25,
-        "JB_name"=>"vasp-Ga.qsub",
-        "JB_owner"=>"ippei",
-        "state"=>"qw",
-        "JB_submission_time"=>"2016-03-08T16:58:13",
-        "queue_name"=>"",
-        "slots"=>4}
+#        {"job_list_state"=>"running",
+#        "JB_job_number"=>563,
+#        "JAT_prio"=>0.25,
+#        "JB_name"=>"vasp-Ga.qsub",
+#        "JB_owner"=>"ippei",
+#        "state"=>"r",
+#        "JAT_start_time"=>"2016-03-08T16:59:02",
+#        "queue_name"=>"Ga.q@Ga01.calc.atom",
+#        "slots"=>4},
+#        {"job_list_state"=>"pending",
+#        "JB_job_number"=>564,
+#        "JAT_prio"=>0.25,
+#        "JB_name"=>"vasp-Ga.qsub",
+#        "JB_owner"=>"ippei",
+#        "state"=>"qw",
+#        "JB_submission_time"=>"2016-03-08T16:58:13",
+#        "queue_name"=>"",
+#        "slots"=>4}
       ]
-    elsif
+    elsif queue == 'Ga.q'
       results = [
-        {"job_list_state"=>"running",
-        "JB_job_number"=>557,
-        "JAT_prio"=>0.25,
-        "JB_name"=>"vasp-Ga.qsub",
-        "JB_owner"=>"ippei",
-        "state"=>"r",
-        "JAT_start_time"=>"2016-03-08T16:59:02",
-        "queue_name"=>"Ga.q@Ga00.calc.atom",
-        "slots"=>4},
-        {"job_list_state"=>"pending",
-        "JB_job_number"=>564,
-        "JAT_prio"=>0.25,
-        "JB_name"=>"vasp-Ga.qsub",
-        "JB_owner"=>"ippei",
-        "state"=>"qw",
-        "JB_submission_time"=>"2016-03-08T16:58:13",
-        "queue_name"=>"",
-        "slots"=>4}
+#        {"job_list_state"=>"running",
+#        "JB_job_number"=>557,
+#        "JAT_prio"=>0.25,
+#        "JB_name"=>"vasp-Ga.qsub",
+#        "JB_owner"=>"ippei",
+#        "state"=>"r",
+#        "JAT_start_time"=>"2016-03-08T16:59:02",
+#        "queue_name"=>"Ga.q@Ga00.calc.atom",
+#        "slots"=>4},
+#        {"job_list_state"=>"pending",
+#        "JB_job_number"=>564,
+#        "JAT_prio"=>0.25,
+#        "JB_name"=>"vasp-Ga.qsub",
+#        "JB_owner"=>"ippei",
+#        "state"=>"qw",
+#        "JB_submission_time"=>"2016-03-08T16:58:13",
+#        "queue_name"=>"",
+#        "slots"=>4}
       ]
     else
       results = []
@@ -202,10 +202,56 @@ class TC_ComputationManager < Test::Unit::TestCase
     assert_raise(Comana::ComputationManager::ExecuteError){ @calc_not_exe.start}
   end
 
-  def test_effective_queue
-    Comana::ComputationManager.effective_queue
+  #def test_qsub
+  #  #Comana::ComputationManager.effective_queue
+  #end
 
-    #TODO
+  def test_effective_queue
+    ## 空きホストがあるときは benchmarks の短い方
+    queues = ['A.q', 'B.q']
+    jobs  = {'A.q' => 1, 'B.q' => 0}
+    hosts = {'A.q' => 2, 'B.q' => 2}
+    benchmarks = {'A.q' => 1.0, 'B.q' => 2.0}
+    r = Comana::ComputationManager.effective_queue(queues, jobs, hosts, benchmarks)
+    c = 'A.q'
+    assert_equal(c, r)
+
+    ## 空きホストがあるなかで選ぶ。
+    queues = ['A.q', 'B.q']
+    jobs  = {'A.q' => 2, 'B.q' => 0}
+    hosts = {'A.q' => 2, 'B.q' => 2}
+    benchmarks = {'A.q' => 1.0, 'B.q' => 2.0}
+    r = Comana::ComputationManager.effective_queue(queues, jobs, hosts, benchmarks)
+    c = 'B.q'
+    assert_equal(c, r)
+
+    ## 全てのホストが埋まっていたら、見込み時間の早いもので。
+    queues = ['A.q', 'B.q']
+    jobs  = {'A.q' => 2, 'B.q' => 2}
+    hosts = {'A.q' => 2, 'B.q' => 2}
+    benchmarks = {'A.q' => 1.0, 'B.q' => 2.0}
+    r = Comana::ComputationManager.effective_queue(queues, jobs, hosts, benchmarks)
+    c = 'A.q'
+    assert_equal(c, r)
+
+    ## 全てのホストが埋まっていたら、見込み時間の早いもので。
+    queues = ['A.q', 'B.q']
+    jobs  = {'A.q' => 99, 'B.q' => 2}
+    hosts = {'A.q' => 2, 'B.q' => 2}
+    benchmarks = {'A.q' => 1.0, 'B.q' => 2.0}
+    r = Comana::ComputationManager.effective_queue(queues, jobs, hosts, benchmarks)
+    c = 'B.q'
+    assert_equal(c, r)
   end
+
+  def test_guess_end_time
+    assert_equal(1.0, Comana::ComputationManager.guess_end_time(0, 1, 1.0))
+    assert_equal(1.0, Comana::ComputationManager.guess_end_time(1, 2, 1.0))
+    assert_equal(2.0, Comana::ComputationManager.guess_end_time(1, 1, 1.0))
+    assert_equal(3.0, Comana::ComputationManager.guess_end_time(2, 2, 2.0))
+    assert_equal(4.5, Comana::ComputationManager.guess_end_time(8, 4, 2.0))
+  end
+
+
 end
 

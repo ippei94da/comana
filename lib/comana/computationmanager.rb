@@ -5,10 +5,11 @@
 # Users have to redefine some methods in subclasses for various computation.
 # 
 class Comana::ComputationManager
-  class NotImplementedError < Exception; end
-  class AlreadyStartedError < Exception; end
-  class AlreadySubmittedError < Exception; end
-  class ExecuteError < Exception; end
+  class InitializeError < StandardError; end
+  class NotImplementedError < StandardError; end
+  class AlreadyStartedError < StandardError; end
+  class AlreadySubmittedError < StandardError; end
+  class ExecuteError < StandardError; end
 
   QSUB_SCRIPT_NAME = 'qsub.sh'
   QSUB_LOG_NAME    = 'qsub.log'
@@ -46,58 +47,57 @@ class Comana::ComputationManager
   end
 
   def self.qsub(args, options)
-    #tgts = args
-    #tgts = [ENV['PWD']] if tgts.empty?
-
-    #command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
-
-    #tgts.each do |dir|
-    #  begin
-    #    calc_dir = VaspUtils::VaspGeometryOptimizer.new(dir)
-    #    calc_dir.queue_submit(
-    #      q_name:           options[:q_name],
-    #      pe_name:          options[:pe_name],
-    #      ld_library_path:  options[:ld_library_path],
-    #      command:          command
-    #    )
-    #  rescue VaspUtils::VaspGeometryOptimizer::InitializeError
-    #    puts "Not VaspDir: #{dir}"
-    #    exit
-    #  rescue Comana::ComputationManager::AlreadySubmittedError
-    #    puts "Already started. Exit."
-    #    exit
-    #  end
-    #end
-    #
-    cs = Comana::ClusterSetting.load_file
-    q_name =  self.effective_queue if options[:auto]
-
-    if options[:load_group] || options[:auto]
-      settings = Comana::ClusterSetting.load_file
-      gs = settings.groups[options[:load_group]]
-      q_name          ||= gs['queue']
-      pe_name         ||= gs['pe']
-      ppn             ||= gs['ppn']
-      ld_library_path ||= gs['ld_library_path']
-      #pp gs
+    if options[:auto] || options[:load_group]
+      # OK
+    elsif !(options[:q_name] && options[:pe_name] && options[:ppn] && options[:command])
+      puts "Lack of required options."
+      puts "Need (--auto) or (--load-group) or (--q-name && --pe-name && --ppn && --command )"
+      puts "E.g., OK: #{File.basename($0)} --auto"
+      puts "      OK: #{File.basename($0)} --load-group=cluster_name"
+      puts "      OK: #{File.basename($0)} --q-name=a --pe-name=b --ppn=1 --command=c"
+      puts "      NG: #{File.basename($0)} --q-name=a --pe-name=b --ppn=1"
+      puts "Exit."
+      exit
     end
-
-    #pp q_name
-    exit
 
     tgts = args
     tgts = [ENV['PWD']] if tgts.empty?
 
-    q_name          = options[:q_name]          if options[:q_name]
-    pe_name         = options[:pe_name]         if options[:pe_name]
-    ppn             = options[:ppn]             if options[:ppn]
-    ld_library_path = options[:ld_library_path] if options[:ld_library_path]
-    #command         = options[:command]
-    command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
-
     tgts.each do |dir|
+      cs = Comana::ClusterSetting.load_file
+      if options[:load_group]
+        q_name = options[:load_group]
+      elsif options[:auto]
+        queues = Comana::GridEngine.queues
+        jobs = {}
+        hosts = {}
+        benchmarks = {}
+        queues.each do |q|
+          jobs[q] = Comana::GridEngine.queue_jobs(q).size
+          hosts[q] = Comana::GridEngine.queue_alive_nums[q]
+          benchmarks[q] = Comana::ClusterSetting.load_file.settings_queue(q)['benchmark']
+        end
+        q_name =  self.effective_queue(queues, jobs, hosts, benchmarks)
+      end
+
+      if options[:load_group] || options[:auto]
+        gs = cs.settings_queue(q_name)
+        q_name          ||= gs['queue']
+        pe_name         ||= gs['pe']
+        ppn             ||= gs['ppn']
+        ld_library_path ||= gs['ld_library_path']
+      end
+
+      q_name          = options[:q_name]          if options[:q_name]
+      pe_name         = options[:pe_name]         if options[:pe_name]
+      ppn             = options[:ppn]             if options[:ppn]
+      ld_library_path = options[:ld_library_path] if options[:ld_library_path]
+      command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
+
       begin
-        calc_dir = VaspUtils::VaspDir.new(dir)
+        #calc_dir = VaspUtils::VaspDir.new(dir)
+        calc_dir = self.new(dir)
+        #pp dir
         calc_dir.queue_submit(
           q_name:           q_name,
           pe_name:          pe_name,
@@ -105,38 +105,48 @@ class Comana::ComputationManager
           ld_library_path:  ld_library_path,
           command:          command
         )
-      rescue VaspUtils::VaspDir::InitializeError
-        puts "Not VaspDir: #{dir}"
-        exit
+      #rescue Comana::ComputationManager::InitializeError
+      rescue self::InitializeError
+        #TODO
+        puts "Not #{self} : #{dir}"
+        #exit
       rescue Comana::ComputationManager::AlreadySubmittedError
-        puts "Already started. Exit."
-        exit
+        puts "Already started: #{dir}"
+        #exit
       end
     end
+    #sleep 0.1 # システムコールに失敗するのを防ぐ？
   end
 
-  def self.effective_queue
-    queues = Comana::GridEngine.queues
-    candidates = queues.select do |q|
-      j = Comana::GridEngine.queue_jobs(q).size
-      h = Comana::GridEngine.queue_alive_nums[q]
-      j < h
-    end
-    #pp candidates
+  ## jobs < hosts のキューがあれば(空きホストがあれば)、その中で bench が最小のもの
+  ## なければ、self.guess_end_time の値が最小のもの。
+  def self.effective_queue(queues, jobs, hosts, benchmarks)
+    #queues = Comana::GridEngine.queues
+    #pp queues, jobs, hosts, benchmarks
 
-    if candidates
-      result = candidates.min_by{|q| q.benchmark}
-      # 予想時間が短いのを選ぶ。
-      #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
+    candidates = queues.select do |q|
+      jobs[q] < hosts[q] 
+    end
+    if candidates.empty?
+      result = queues.min_by{|q| self.guess_end_time(jobs[q], hosts[q], benchmarks[q]) }
     else
-      result = queues.min_by{|q| self.guess_end_time(q) }
-      #のなかで予想時間が短いのを選ぶ。
+      result = candidates.min_by {|q| benchmarks[q]}
     end
     result
   end
 
-  def self.guess_end_time(nj:j, nh:h, bench)
-    TODO
+  # 新しく1個ジョブを追加した場合の終了見込み時間
+  # ジョブの終了時刻がランダムであり、ジョブの実行時間は等しいと仮定して算出。
+  # 空きホストがあれば benchmark 通りの見込み。
+  # 空きホストがなければ、ホストがあくまでの見込み時間を加算。
+  def self.guess_end_time(num_jobs , num_hosts, benchmark)
+    if num_jobs < num_hosts
+      unit = 1.0 #unit 
+    else
+      unit = (num_jobs.to_f + 1.0) / (num_hosts.to_f)
+    end
+    result = unit * benchmark
+    result
   end
 
   # Return a symbol which indicate state of calculation.
@@ -180,12 +190,14 @@ class Comana::ComputationManager
   end
 
   def queue_submit(q_name:, pe_name:, ppn:, ld_library_path: , command:, submit: true)
-    if FileTest.exist? "#{@dir}/#{QSUB_SCRIPT_NAME}"
+
+    qsub_path = "#{@dir}/#{QSUB_SCRIPT_NAME}"
+    if FileTest.exist? qsub_path
       raise AlreadySubmittedError,
-        "Already exist #{@dir}/#{QSUB_SCRIPT_NAME}."
+        "Already exist #{qsub_path}."
     end
-    File.open(QSUB_SCRIPT_NAME, "w") do |io|
-      GridEngine.write_qsub_script(
+    File.open(qsub_path, "w") do |io|
+      Comana::GridEngine.write_qsub_script(
         q_name:          q_name,
         pe_name:         pe_name,
         ppn:             ppn,
@@ -194,9 +206,12 @@ class Comana::ComputationManager
         io:              io
       )
     end
+    cur_dir = Dir.pwd
     Dir.chdir @dir
-    system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}") if options[:submit]
-
+    print   "Submitting #{qsub_path}..."
+    system("qsub #{QSUB_SCRIPT_NAME} > #{QSUB_LOG_NAME}") if submit
+    puts   "Done."
+    Dir.chdir cur_dir
   end
 
   private

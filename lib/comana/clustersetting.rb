@@ -41,6 +41,16 @@ class Comana::ClusterSetting
     @groups[clustername]
   end
 
+  #Return settings as a hash for a cluster, the 'queue' key has a value of q_name.
+  def settings_queue(q_name)
+    result = nil
+    #pp @groups
+    @groups.each do |name, items|
+      result = items if items['queue'] == q_name
+    end
+    result
+  end
+
   #Return settings as a hash for a host belonged to cluster.
   def settings_host(hostname)
     settings_group(belonged_cluster(hostname))

@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 # coding: utf-8
 
+require "pp"
 require "helper"
 require "fileutils"
 
@@ -15,16 +16,19 @@ class TC_ClusterSetting < Test::Unit::TestCase
         "A" => {
           "data1" => "A-1",
           "data2" => "A-2", 
+          "queue" => "A.q", 
           "members" => ["A00", "A01"]
         },
         "B" => {
           "data1" => "B-1",
           "data2" => "B-2",
+          "queue" => "B.q", 
           "members" => ["B00", "B01", "B02"]
         },
         "C" => { #No member
           "data1" => "A-1",
           "data2" => "A-2", 
+          "queue" => "C.q", 
         },
       }
     })
@@ -70,6 +74,7 @@ class TC_ClusterSetting < Test::Unit::TestCase
       {
         "data1" => "A-1",
         "data2" => "A-2", 
+        "queue" => "A.q", 
         "members" => ["A00", "A01"]
       },
       @mi00.settings_group("A")
@@ -79,10 +84,22 @@ class TC_ClusterSetting < Test::Unit::TestCase
       {
         "data1" => "B-1",
         "data2" => "B-2",
+        "queue" => "B.q", 
         "members" => ["B00", "B01", "B02"]
       },
       @mi00.settings_group("B")
     )
+  end
+
+  def test_settings_queue
+    results = @mi00.settings_queue('A.q')
+    corrects = {
+        "data1" => "A-1",
+        "data2" => "A-2", 
+        "queue" => "A.q", 
+        "members" => ["A00", "A01"]
+    }
+    assert_equal(corrects, results)
   end
 
   def test_settings_host
@@ -90,6 +107,7 @@ class TC_ClusterSetting < Test::Unit::TestCase
       {
         "data1" => "A-1",
         "data2" => "A-2", 
+        "queue" => "A.q", 
         "members" => ["A00", "A01"]
       },
       @mi00.settings_host("A00")
@@ -99,6 +117,7 @@ class TC_ClusterSetting < Test::Unit::TestCase
       {
         "data1" => "B-1",
         "data2" => "B-2",
+        "queue" => "B.q", 
         "members" => ["B00", "B01", "B02"]
       },
       @mi00.settings_host("B00")

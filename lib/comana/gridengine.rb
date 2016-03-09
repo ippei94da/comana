@@ -15,8 +15,8 @@ class Comana::GridEngine
     io.puts "#$ -q #{q_name}"
     io.puts "#$ -pe #{pe_name} #{ppn}"
     io.puts "MACHINE_FILE='machines'"
-    io.puts "LD_LIBRARY_PATH=#{ld_library_path}"
-    io.puts "export LD_LIBRARY_PATH"
+    io.puts "LD_LIBRARY_PATH=#{ld_library_path}" if ld_library_path
+    io.puts "export LD_LIBRARY_PATH" if ld_library_path
     io.puts "cd $SGE_O_WORKDIR"
     io.puts "printenv | sort > printenv.log"
     io.puts "cut -d ' ' -f 1,2 $PE_HOSTFILE | sed 's/ / cpu=/' > $MACHINE_FILE"
@@ -153,7 +153,6 @@ class Comana::GridEngine
     end
 
     results
-
     #qs.xpath("/job_info/job_info/job_list").each do |queue|
   end
 

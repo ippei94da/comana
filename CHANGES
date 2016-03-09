@@ -1,15 +1,11 @@
 = comana changelog
 
 == Master (for 0.1.1)
-
-TODO
-
 - Comana::ComputationManager#start() rename to ...
 - Change argument specification of bin/genqsub
-qsub
-
 - Remove GridEngineScript
-
+- Add GridEngine
+- Add ComputationManager::qsub
 
 == Version 0.1.0 [2016-03-04] released
 - Comana::ComputationManager#start() rename to exec().

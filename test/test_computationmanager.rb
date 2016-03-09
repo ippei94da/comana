@@ -3,8 +3,53 @@
 
 require "fileutils"
 require "helper"
+require "pp"
 
 #require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+
+class Comana::GridEngine
+
+  def self.queues(str = '')
+    ['Ag.q', 'Ga.q']
+  end
+
+  def self.queue_jobs(queue, io=nil)
+    results = [
+      {"job_list_state"=>"running",
+      "JB_job_number"=>557,
+      "JAT_prio"=>0.25,
+      "JB_name"=>"vasp-Ga.qsub",
+      "JB_owner"=>"ippei",
+      "state"=>"r",
+      "JAT_start_time"=>"2016-03-08T16:59:02",
+      "queue_name"=>"Ga.q@Ga00.calc.atom",
+      "slots"=>4},
+      {"job_list_state"=>"running",
+      "JB_job_number"=>563,
+      "JAT_prio"=>0.25,
+      "JB_name"=>"vasp-Ga.qsub",
+      "JB_owner"=>"ippei",
+      "state"=>"r",
+      "JAT_start_time"=>"2016-03-08T16:59:02",
+      "queue_name"=>"Ga.q@Ga01.calc.atom",
+      "slots"=>4},
+      {"job_list_state"=>"pending",
+      "JB_job_number"=>564,
+      "JAT_prio"=>0.25,
+      "JB_name"=>"vasp-Ga.qsub",
+      "JB_owner"=>"ippei",
+      "state"=>"qw",
+      "JB_submission_time"=>"2016-03-08T16:58:13",
+      "queue_name"=>"",
+      "slots"=>4}
+    ]
+    results
+  end
+
+  def self.queue_alive_nums
+    { 'Ag.q' => 2, 'Cd.q' => 1 }
+  end
+end
 
 NOW = Time.now
 
@@ -130,6 +175,12 @@ class TC_ComputationManager < Test::Unit::TestCase
   def test_start
     #it "should raise error" do
     assert_raise(Comana::ComputationManager::ExecuteError){ @calc_not_exe.start}
+  end
+
+  def test_effective_queue
+    Comana::ComputationManager.effective_queue
+
+    #TODO
   end
 end
 

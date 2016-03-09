@@ -70,43 +70,30 @@ class Comana::ComputationManager
     #end
     #
     cs = Comana::ClusterSetting.load_file
-    if options[:auto]
-      queues = Comana::GridEngine.queues
-      queues.each do |q|
-        j = Comana::GridEngine.queue_jobs(q).size
-        h = Comana::GridEngine.queue_alive_nums[q]
+    q_name =  self.effective_queue if options[:auto]
 
-        #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
-
-        pp j
-        pp n
-        pp t
-        puts
-      end
+    if options[:load_group] || options[:auto]
+      settings = Comana::ClusterSetting.load_file
+      gs = settings.groups[options[:load_group]]
+      q_name          ||= gs['queue']
+      pe_name         ||= gs['pe']
+      ppn             ||= gs['ppn']
+      ld_library_path ||= gs['ld_library_path']
+      #pp gs
     end
 
-    pp min_queue
+    #pp q_name
     exit
-
 
     tgts = args
     tgts = [ENV['PWD']] if tgts.empty?
 
-    q_name          = options[:q_name]           
-    pe_name         = options[:pe_name]          
-    ppn             = options[:ppn]          
-    ld_library_path = options[:ld_library_path]  
-    #command         = options[:command]         
+    q_name          = options[:q_name]          if options[:q_name]
+    pe_name         = options[:pe_name]         if options[:pe_name]
+    ppn             = options[:ppn]             if options[:ppn]
+    ld_library_path = options[:ld_library_path] if options[:ld_library_path]
+    #command         = options[:command]
     command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
-    if options[:load_group]
-      settings = Comana::ClusterSetting.load_file
-      gs = settings.groups[options[:load_group]]
-      q_name          ||= gs['queue']
-      pe_name         ||= gs['pe']         
-      ppn             ||= gs['ppn']         
-      ld_library_path ||= gs['ld_library_path'] 
-      #pp gs
-    end
 
     tgts.each do |dir|
       begin
@@ -128,6 +115,21 @@ class Comana::ComputationManager
     end
   end
 
+  def self.effective_queue
+    queues = Comana::GridEngine.queues
+    queues.each do |q|
+      j = Comana::GridEngine.queue_jobs(q).size
+      h = Comana::GridEngine.queue_alive_nums[q]
+
+      #t = Comana::GridEngine.guess_end_time(nj:j, nh:h, bench)
+
+      pp queues
+      pp j
+      pp h
+      puts
+    end
+    exit
+  end
 
   # Return a symbol which indicate state of calculation.
   #   :yet           not started

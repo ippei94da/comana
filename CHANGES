@@ -3,9 +3,11 @@
 == Master (for 0.1.1)
 - Comana::ComputationManager#start() rename to ...
 - Change argument specification of bin/genqsub
-- Remove GridEngineScript
+- Delete GridEngineScript
 - Add GridEngine
 - Add ComputationManager::qsub
+- Delete bin/machinestatus. Use hostinfo
+- Delete QueueSubmitter
 
 == Version 0.1.0 [2016-03-04] released
 - Comana::ComputationManager#start() rename to exec().

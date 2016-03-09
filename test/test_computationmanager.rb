@@ -5,82 +5,9 @@ require "fileutils"
 require "helper"
 require "pp"
 
-#require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-
-class Comana::GridEngine
-
-  def self.queues(str = '')
-    ['Ag.q', 'Ga.q']
-  end
-
-  def self.queue_jobs(queue, io=nil)
-    if queue == 'Ag.q'
-      results = [
-        {"job_list_state"=>"running",
-        "JB_job_number"=>557,
-        "JAT_prio"=>0.25,
-        "JB_name"=>"vasp-Ga.qsub",
-        "JB_owner"=>"ippei",
-        "state"=>"r",
-        "JAT_start_time"=>"2016-03-08T16:59:02",
-        "queue_name"=>"Ga.q@Ga00.calc.atom",
-        "slots"=>4},
-#        {"job_list_state"=>"running",
-#        "JB_job_number"=>563,
-#        "JAT_prio"=>0.25,
-#        "JB_name"=>"vasp-Ga.qsub",
-#        "JB_owner"=>"ippei",
-#        "state"=>"r",
-#        "JAT_start_time"=>"2016-03-08T16:59:02",
-#        "queue_name"=>"Ga.q@Ga01.calc.atom",
-#        "slots"=>4},
-#        {"job_list_state"=>"pending",
-#        "JB_job_number"=>564,
-#        "JAT_prio"=>0.25,
-#        "JB_name"=>"vasp-Ga.qsub",
-#        "JB_owner"=>"ippei",
-#        "state"=>"qw",
-#        "JB_submission_time"=>"2016-03-08T16:58:13",
-#        "queue_name"=>"",
-#        "slots"=>4}
-      ]
-    elsif queue == 'Ga.q'
-      results = [
-#        {"job_list_state"=>"running",
-#        "JB_job_number"=>557,
-#        "JAT_prio"=>0.25,
-#        "JB_name"=>"vasp-Ga.qsub",
-#        "JB_owner"=>"ippei",
-#        "state"=>"r",
-#        "JAT_start_time"=>"2016-03-08T16:59:02",
-#        "queue_name"=>"Ga.q@Ga00.calc.atom",
-#        "slots"=>4},
-#        {"job_list_state"=>"pending",
-#        "JB_job_number"=>564,
-#        "JAT_prio"=>0.25,
-#        "JB_name"=>"vasp-Ga.qsub",
-#        "JB_owner"=>"ippei",
-#        "state"=>"qw",
-#        "JB_submission_time"=>"2016-03-08T16:58:13",
-#        "queue_name"=>"",
-#        "slots"=>4}
-      ]
-    else
-      results = []
-    end
-    results
-  end
-
-  def self.queue_alive_nums
-    { 'Ag.q' => 2, 'Ga.q' => 1 }
-  end
-end
-
 NOW = Time.now
 
 class Comana::ComputationManager
-  #public :latest_modified_time, :started?
-  #public :started?, :write_qsub_script
   public :started?
 end
 
@@ -93,12 +20,10 @@ class TC_ComputationManager < Test::Unit::TestCase
     def finished?         ; false     ; end
   end
 
-  #describe Comana::ComputationManager, "with output, without lock" do
   class CalcStarted < Comana::ComputationManager
     def finished?         ; false     ; end
   end
 
-  #describe Comana::ComputationManager, "terminated" do
   class CalcTerminated < Comana::ComputationManager
     def finished?         ; false     ; end
     def initialize(dir)
@@ -108,12 +33,10 @@ class TC_ComputationManager < Test::Unit::TestCase
     end
   end
 
-  #describe Comana::ComputationManager, "finished" do
   class CalcFinished    < Comana::ComputationManager
     def finished?         ; true      ; end
   end
 
-  #describe Comana::ComputationManager, "cannot execute" do
   class CalcNotExecutable    < Comana::ComputationManager
     def calculate
       end_status = system "" # notExistCommand
@@ -125,13 +48,9 @@ class TC_ComputationManager < Test::Unit::TestCase
     end
 
     def prepare_next
-      #return false
       raise
     end
   end
-
-
-
 
   def setup
     calc_dir = "test/not_started"
@@ -181,30 +100,19 @@ class TC_ComputationManager < Test::Unit::TestCase
   end
 
   def test_latest_modified_time
-    #it "should return latest modified time" do
     assert_equal(NOW - 1000, @calc00.latest_modified_time)
   end
 
-  #def test_queue_submit
-  #end
-
   def test_started?
-    #it "should return false without lock." do
     assert_not_nil(@calc00.started?)
     assert_equal(false, @calc00.started?)
 
-    #it "should return true with lock." do
     assert_equal(false, @calc00.started?)
   end
 
   def test_start
-    #it "should raise error" do
     assert_raise(Comana::ComputationManager::ExecuteError){ @calc_not_exe.start}
   end
-
-  #def test_qsub
-  #  #Comana::ComputationManager.effective_queue
-  #end
 
   def test_effective_queue
     ## 空きホストがあるときは benchmarks の短い方

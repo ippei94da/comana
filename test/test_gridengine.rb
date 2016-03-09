@@ -6,10 +6,6 @@ require "helper"
 
 
 class TC_GridEngine < Test::Unit::TestCase
-  #def setup
-  #  @g00 = Comana::GridEngine.new
-  #end
-
   def test_write_qsub_script
     io = StringIO.new
 
@@ -137,7 +133,6 @@ class TC_GridEngine < Test::Unit::TestCase
        'slots' => 4,
       },
     ]
-    #assert_equal(corrects[3], results[3])
     assert_equal(corrects, results)
   end
 
@@ -146,8 +141,6 @@ class TC_GridEngine < Test::Unit::TestCase
     results = Comana::GridEngine.queues(str)
     corrects = ['Ag.q', 'Ga.q']
     assert_equal(corrects, results)
-
-    #pp results = Comana::GridEngine.queues
   end
 
   def test_queue_jobs

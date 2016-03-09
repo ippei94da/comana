@@ -5,9 +5,6 @@ require "pp"
 require "helper"
 require "fileutils"
 
-#require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
-#require "comana/clustersetting.rb"
-
 class TC_ClusterSetting < Test::Unit::TestCase
   def setup
     @mi00 = Comana::ClusterSetting.new({
@@ -38,27 +35,9 @@ class TC_ClusterSetting < Test::Unit::TestCase
     assert_equal("P00", @mi00.pbs_server)
 
     data_file = "example/dot.clustersetting"
-    assert_nothing_raised{
-      Comana::ClusterSetting.load_file(data_file)
-    }
-
-    #context "not exist clustersetting file" do
+    assert_nothing_raised{ Comana::ClusterSetting.load_file(data_file) }
     assert_raise(Errno::ENOENT){ Comana::ClusterSetting.load_file("") }
   end
-
-    #mi00 = Comana::ClusterSetting.load_file(data_file)
-    #mi00.groups.should == {
-    #  "A" => {
-    #    "data1" => "A-1",
-    #    "data2" => "A-2", 
-    #    "members" => ["A00", "A01"]
-    #  },
-    #  "B" => {
-    #    "data1" => "B-1",
-    #    "data2" => "B-2",
-    #    "members" => ["B00", "B01", "B02"]
-    #  },
-    #}
 
   def test_belonged_cluster
     assert_equal("A" , @mi00.belonged_cluster("A00"))
@@ -123,7 +102,6 @@ class TC_ClusterSetting < Test::Unit::TestCase
       @mi00.settings_host("B00")
     )
 
-    #assert_equal(nil, @mi00.settings_host("NONE"))
     assert_raise(Comana::ClusterSetting::NoEntryError){ @mi00.settings_host("NONE")}
   end
 

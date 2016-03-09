@@ -24,33 +24,22 @@ class TC_HostSelector < Test::Unit::TestCase
   end
 
   def test_load_file
-    hs = Comana::HostSelector.load_file("example/dot.clustersetting")
+    hs = Comana::HostSelector.load_file("test/hostselector/dot.clustersetting")
     assert_equal(Comana::HostSelector, hs.class)
-    #pp hs
-    #assert_equal(["A00", "A01", "B00", "B01", "B02"], hs.select_all)
     assert_equal({"A"=>["A00", "A01"], "B"=>["B00", "B01", "B02"]}, hs.groups_hosts)
   end
 
   def test_select_all
-    #it 'should return all hosts' do
     assert_equal(["A00", "A01", "B00", "B01", "B02"], @hs00.select_all)
-
-    #it 'should return all hosts without nil' do
     assert_equal(["A00", "A01", "B00", "B01", "B02"], @hs01.select_all)
   end
 
   def test_select_group
-    #it 'should return hosts in GroupA' do
     assert_equal(["A00", "A01"], @hs00.select_group("GroupA"))
-
-    #it 'should raise Comana::HostSelector::NoEntryError' do
-    assert_raise(Comana::HostSelector::NoEntryError){
-      @hs00.select_group("GroupNil")
-    }
+    assert_raise(Comana::HostSelector::NoEntryError){ @hs00.select_group("GroupNil") }
   end
 
   def test_groups
-    #it 'should return all groups' do
     assert_equal(["GroupA", "GroupB"], @hs00.groups)
   end
 end

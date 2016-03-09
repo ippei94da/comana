@@ -4,12 +4,27 @@
 pbs_server: "P00"
 
 groups:
-  A:
-    data1:  'A-1'
-    data2:  'A-2'
-    members: ["A00", "A01"]
+  Ag:
+    mpi: '/opt/openmpi-intel/bin/mpiexec'
+    vasp: '/opt/bin/vasp5212openmpi'
+    ppn: 4
+    members: [
+      'Ag00','Ag01','Ag02','Ag03','Ag04','Ag05','Ag06','Ag07'
+      ]
+    ld_library_path: '/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib'
+    queue: 'Ag.q'
+    pe: 'Ag.openmpi'
+    benchmark: 11.6302
 
-  B:
-    data1:  'B-1'
-    data2:  'B-2'
-    members: ["B00", "B01", "B02"]
+  Cd:
+    mpi: '/opt/openmpi-intel/bin/mpiexec'
+    vasp: '/opt/bin/vasp5212openmpi'
+    ppn: 4
+    members: [
+      'Cd00','Cd01','Cd02','Cd03','Cd04','Cd05','Cd06','Cd07'
+      ]
+    ld_library_path: '/usr/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/intel/lib/intel64:/opt/intel/lib:/opt/openmpi-intel/lib'
+    queue: 'Cd.q'
+    pe: 'Cd.openmpi'
+    benchmark: 12.0019
+

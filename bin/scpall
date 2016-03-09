@@ -26,7 +26,7 @@ require "comana"
 OPTIONS = {}
 op = OptionParser.new
 op.on("-f from_file", "--from-file=str", "Copied file in a localhost."){|v| OPTIONS[:from_file] = v}
-op.on("-t from_file", "--to-file=str", "File path in remotehosts."){|v| OPTIONS[:to_file] = v}
+op.on("-t to_file", "--to-file=str", "File path in remotehosts."){|v| OPTIONS[:to_file] = v}
 op.on("-g", "--group", "Interpret arguments as group name."){OPTIONS[:group] = true}
 op.on("-u user", "--user=str"    , "User on remote host."){|v| OPTIONS[:user] = v}
 op.on("-T", "--test"    , "Test mode; not execute."){OPTIONS[:test] = true}

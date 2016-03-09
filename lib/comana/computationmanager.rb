@@ -32,8 +32,7 @@ class Comana::ComputationManager
       begin
         calc_dir = self.new(dir)
       rescue => exc
-        #puts "Not suitable directory, due of an exception: #{exc}"
-        puts "Not #{self.class}: #{dir}"
+        puts "Not #{self}: #{dir}"
         next
       end
 
@@ -95,9 +94,7 @@ class Comana::ComputationManager
       command = options[:command] || "#{`which #{__FILE__}`.chomp} execute"
 
       begin
-        #calc_dir = VaspUtils::VaspDir.new(dir)
         calc_dir = self.new(dir)
-        #pp dir
         calc_dir.queue_submit(
           q_name:           q_name,
           pe_name:          pe_name,
@@ -105,25 +102,17 @@ class Comana::ComputationManager
           ld_library_path:  ld_library_path,
           command:          command
         )
-      #rescue Comana::ComputationManager::InitializeError
       rescue self::InitializeError
-        #TODO
         puts "Not #{self} : #{dir}"
-        #exit
       rescue Comana::ComputationManager::AlreadySubmittedError
         puts "Already started: #{dir}"
-        #exit
       end
     end
-    #sleep 0.1 # システムコールに失敗するのを防ぐ？
   end
 
   ## jobs < hosts のキューがあれば(空きホストがあれば)、その中で bench が最小のもの
   ## なければ、self.guess_end_time の値が最小のもの。
   def self.effective_queue(queues, jobs, hosts, benchmarks)
-    #queues = Comana::GridEngine.queues
-    #pp queues, jobs, hosts, benchmarks
-
     candidates = queues.select do |q|
       jobs[q] < hosts[q] 
     end

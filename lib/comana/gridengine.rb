@@ -113,7 +113,7 @@ class Comana::GridEngine
   
   #def self.queue_jobs(qname, str = `qconf -sql`)
   def self.queue_jobs(qname, io = nil)
-    io ||= IO.popen("qstat -q #{qname} -xml", "r+") 
+    io ||= IO.popen("qstat -q #{qname} -u '*' -xml", "r+") 
     results = []
     qs = Nokogiri::XML(io)
     qs.xpath("/job_info/queue_info/job_list").each do |queue|

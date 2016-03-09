@@ -1,0 +1,15 @@
+--- # vim: syntax=yaml
+# cluster_name: [ num_economy, num_speed ]
+
+pbs_server: "P00"
+
+groups:
+  A:
+    data1:  'A-1'
+    data2:  'A-2'
+    members: ["A00", "A01"]
+
+  B:
+    data1:  'B-1'
+    data2:  'B-2'
+    members: ["B00", "B01", "B02"]

@@ -16,7 +16,6 @@ class Comana::HostSelector
   end
 
   def self.load_file(file = Comana::ClusterSetting::DEFAULT_DATA_FILE)
-    #pp Comana::ClusterSetting::DEFAULT_DATA_FILE
     yaml = YAML.load_file(file)
     groups_hosts = {}
     yaml["groups"].each do |key, val|

@@ -31,7 +31,7 @@ class Comana::ComputationManager
       print "#{dir}..."
       begin
         calc_dir = self.new(dir)
-      rescue => exc
+      rescue
         puts "Not #{self}: #{dir}"
         next
       end

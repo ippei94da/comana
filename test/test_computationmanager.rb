@@ -20,10 +20,6 @@ class TC_ComputationManager < Test::Unit::TestCase
     def finished?         ; false     ; end
   end
 
-  class CalcStarted < Comana::ComputationManager
-    def finished?         ; false     ; end
-  end
-
   class CalcTerminated < Comana::ComputationManager
     def finished?         ; false     ; end
     def initialize(dir)

@@ -1,37 +1,38 @@
 = comana changelog
 
 == Master (for 0.1.2)
+* Delete meaningless codes.
 
 == Version 0.1.1 [2016-03-11] released
-- Comana::ComputationManager#start() rename to ...
-- Change argument specification of bin/genqsub
-- Delete GridEngineScript
-- Add GridEngine
-- Add ComputationManager::qsub
-- Delete bin/machinestatus. Use hostinfo
-- Delete QueueSubmitter
+* Comana::ComputationManager#start() rename to ...
+* Change argument specification of bin/genqsub
+* Delete GridEngineScript
+* Add GridEngine
+* Add ComputationManager::qsub
+* Delete bin/machinestatus. Use hostinfo
+* Delete QueueSubmitter
 
 == Version 0.1.0 [2016-03-04] released
-- Comana::ComputationManager#start() rename to exec().
-- Comana::ComputationManager.exec is added.
-- Add Comana::HostInspector
-- Add bin/hostinfo
-- Add bin/genqsub
+* Comana::ComputationManager#start() rename to exec().
+* Comana::ComputationManager.exec is added.
+* Add Comana::HostInspector
+* Add bin/hostinfo
+* Add bin/genqsub
 
 == Version 0.0.10 [2014-08-28] released
-- Provide namespace 'Comana' for classes.
-- Add HostnameSelector
-- Add HostnameSelector::Ping
-- Add HostnameSelector::Pbsnodes
-- MachineInfo class in machineinfo.rb is renamed to be
+* Provide namespace 'Comana' for classes.
+* Add HostnameSelector
+* Add HostnameSelector::Ping
+* Add HostnameSelector::Pbsnodes
+* MachineInfo class in machineinfo.rb is renamed to be
   ClusterSetting class in clusterinfo.rb,
   And change interface.
-- Change Rspec to TestUnit
-- Add bin/sshall
-- Add bin/scpall
-- Add priority option to opts in QueueSubmitter::initialize,
+* Change Rspec to TestUnit
+* Add bin/sshall
+* Add bin/scpall
+* Add priority option to opts in QueueSubmitter::initialize,
   affecting PBS -p option in script.sh.
-- ComputationManager.latest_modified_time is changed to public method.
+* ComputationManager.latest_modified_time is changed to public method.
 
 == Version 0.0.9 [2012-05-29] released
   Change opts specification in QueueSubmitter; symbol to string

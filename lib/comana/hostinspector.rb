@@ -12,7 +12,7 @@ class Comana::HostInspector
   attr_reader :hostname
 
   #
-  def initialize(hostname, cache_dir)
+  def initialize(hostname, cache_dir = CACHE_DIR)
     @hostname = hostname
     @cache_dir = "#{cache_dir}/#{@hostname}"
   end

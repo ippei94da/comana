@@ -1,6 +1,7 @@
 module Comana; end
 
 require 'nokogiri'
+require 'fileutils'
 require 'string/integer'
 require 'string/float'
 require "comana/computationmanager.rb"

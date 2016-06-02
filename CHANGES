@@ -1,6 +1,7 @@
 = comana changelog
 
 == Master (for 0.1.3)
+* Bugfix for bin/hostinfo 
 
 == Version 0.1.2 [2016-05-09] released
 * Delete meaningless codes.

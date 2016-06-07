@@ -79,6 +79,8 @@ class Comana::ComputationManager
         q_name =  self.effective_queue(queues, jobs, hosts, benchmarks)
       end
 
+      #pp cs
+      #pp q_name
       if options[:load_group] || options[:auto]
         gs = cs.settings_queue(q_name)
         q_name          ||= gs['queue']

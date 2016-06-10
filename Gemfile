@@ -6,7 +6,7 @@ source "http://rubygems.org"
 # Add dependencies to develop your gem here.
 # Include everything needed to exec rake, tests, features, etc.
 group :development do
-  gem "test-unit", "~> 3.1"
+  gem "test-unit", "~> 3.2"
   gem "rdoc", "~> 4.2"
   gem "bundler", "~> 1.11"
   gem "jeweler", "~> 2.0"

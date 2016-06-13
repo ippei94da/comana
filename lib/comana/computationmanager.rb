@@ -62,6 +62,7 @@ class Comana::ComputationManager
     tgts = args
     tgts = [ENV['PWD']] if tgts.empty?
 
+    #pp tgts;exit
     tgts.each do |dir|
       cs = Comana::ClusterSetting.load_file
       if options[:load_group]
@@ -73,9 +74,10 @@ class Comana::ComputationManager
         benchmarks = {}
         queues.each do |q|
           jobs[q] = Comana::GridEngine.queue_jobs(q).size
-          hosts[q] = Comana::GridEngine.queue_alive_nums[q]
+          hosts[q] = Comana::GridEngine.queue_alive_nums[q] || 0
           benchmarks[q] = Comana::ClusterSetting.load_file.settings_queue(q)['benchmark']
         end
+        pp queues, jobs, hosts, benchmarks
         q_name =  self.effective_queue(queues, jobs, hosts, benchmarks)
       end
 

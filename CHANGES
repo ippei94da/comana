@@ -1,6 +1,8 @@
 = comana changelog
 
-== Master (for 0.1.3)
+<!-- Master -->
+
+== Version 0.1.3 [2016-07-12] released
 * Bugfix for bin/hostinfo 
 
 == Version 0.1.2 [2016-05-09] released
